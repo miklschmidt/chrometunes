@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="js/filer.min.js"></script>
+<script src="js/id3v2.js"></script>
+</head>
+<body>
+<input type="file" id="files" name="files[]" multiple />
+<output id="list"></output>
+<audio controls id="audio" src=""></audio>
+<script>
+var filer = new Filer();
+
+var on_error = function (e) {
+  console.log('Error: ' + e.name);
+  console.log(e);
+}
+
+var list_files = function () {
+	$('#list').html('<ul></ul>');
+	filer.ls('.', function(entries) {
+		for (var x = 0; f = entries[x]; ++x) {
+			console.log(f);
+			$('#list ul').append('<li>' + f.name + '</li>');
+		}
+	});
+}
+
+//Initialize 500 megs of space.
+filer.init({persistent: false, size: 500 * 1024 * 1024}, function(fs) { 
+	//success
+
+	//if we are in persistent mode we have to explicitly request the quota.
+	/*webkitStorageInfo.requestQuota( 
+	    webkitStorageInfo.PERSISTENT,
+	     500 * 1024 * 1024,
+	    function() { console.log ('it worked') },
+	    function() { console.log ('it didnt work') });*/
+
+	filer.isOpen == true;
+	filer.fs == fs;
+	list_files();
+}, on_error);
+
+$('#files').change(function(e) {
+	var files = e.target.files;
+
+	console.log(filer.size);
+	for (var i = 0, file; file = files[i]; ++i) {
+		//TODO: Implement support for directories. (ie. webkitRelativePath)
+		filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
+			//success
+			list_file();
+		}, on_error);
+	}
+});
+</script>
+</body>
+</html>
