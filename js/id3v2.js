@@ -1,4 +1,5 @@
 ID3v2 = {
+	//TODO: Clean this crap up and implement write support. (maybe this will help to clarify https://github.com/aadsm/JavaScript-ID3-Reader/blob/master/src/id3v2.js)
 	parseStream: function(stream, onComplete){
 
 	var PICTURE_TYPES = {

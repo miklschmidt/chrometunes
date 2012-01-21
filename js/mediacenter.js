@@ -31,6 +31,7 @@ var media_center = {
 					$file.data('playlist_id', id)
 					$file.data('playlist_number', number);
 					$file.attr('id', id + '-' + number);
+					//Make the file play on click.
 					$file.click(function(){
 						var $f = $(this);
 						playlist.play(number);
