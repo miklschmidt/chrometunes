@@ -1,6 +1,8 @@
 /*
  *	@author Mikkel Schmidt (mikkel.schmidt@gmail.com)
  *	@dependencies jQuery.js, Filer.js, id3v2.js
+ *	
+ *	TODO: Make files downloadable (ie. transferable to user defined folder.. dno how yet);
  */
 
 var media_center = {
@@ -17,45 +19,59 @@ var media_center = {
 		var self = this;
 		$('#list').html('<ul></ul>');
 		filer.ls('/storage', function(entries) {
+			var playlist = self.playlist('all');
 			for (var x = 0; f = entries[x]; ++x) {
 				self.parse_id3(f, function(tags){
 					var $file = $('<li>' + tags.Artist + ' - ' + tags.Title + '</li>');
 					$('#list ul').append($file);
 					$file.data('file', f);
+					//Add to playlist.
+					var id = playlist.id();
+					var number = playlist.push(f);
+					$file.data('playlist_id', id)
+					$file.data('playlist_number', number);
+					$file.attr('id', id + '-' + number);
 					$file.click(function(){
-						var f = $(this).data('file');
-						console.log('Now playing: ' + f.name);
-		                $("#audio").attr('src', f.toURL());
-		                $("#audio")[0].play();
+						var $f = $(this);
+						playlist.play(number);
+						$file.siblings().removeClass('playing');
+						$file.addClass('playing');
 					});
-					//TODO: Make downloadable (ie. transferable to user defined folder);
-					//var $link = $('<li><a href="" target="_blank">Download song above</a>');
-					//$('#list ul').append($link);
-				})
+				});
 			}
+			$("#audio").bind('ended', function() {
+				console.log('playback of current song ended, moving on to the next in the playlist');
+				playlist.element_for(playlist.next()).addClass('playing').siblings().removeClass('playing');
+			});
+			//playlist.play();
 		});
+	},
+
+	play: function(file_url) {
+		$("#audio").attr('src', file_url);
+		$("#audio")[0].play();
 	},
 
 	parse_id3: function (file_entry, callback) {
 		//TODO: Use FileSystem instead of local storage.
-        if (localStorage[file_entry.fullPath]) {
-        	//Return cached ID3 tags.
-        	console.log('id3 info allready in localstorage. returning.')
-        	return callback(JSON.parse(localStorage[file_entry.fullPath]));
-        } 
-        file_entry.file(function(file) {
-        	//Generate and cache ID3 tags.
-	        ID3v2.parseFile(file,function(tags){
+		if (localStorage[file_entry.fullPath]) {
+			//Return cached ID3 tags.
+			console.log('id3 info allready in localstorage. returning.')
+			return callback(JSON.parse(localStorage[file_entry.fullPath]));
+		} 
+		file_entry.file(function(file) {
+			//Generate and cache ID3 tags.
+			ID3v2.parseFile(file,function(tags){
 				console.log('parsing id3.')
-	        	localStorage[file_entry.fullPath] = JSON.stringify({
-	        		Title: tags.Title,
-	        		Artist: tags.Artist,
-	        		Album: tags.Album,
-	        		Genre: tags.Genre
-	        	});
-	        	callback(tags);
-	        });
-        });
+				localStorage[file_entry.fullPath] = JSON.stringify({
+					Title: tags.Title,
+					Artist: tags.Artist,
+					Album: tags.Album,
+					Genre: tags.Genre
+				});
+				callback(tags);
+			});
+		});
 
 	},
 
@@ -96,5 +112,69 @@ var media_center = {
 				}
 			}, self.on_error);
 		});
-	}
+	},
+
+	_playlists: {},
+
+	playlist: function(id) {
+		//Check if the playlist id allready exist.
+		if (typeof(this._playlists[id]) != 'undefined' && this._playlists[id] !== null) {
+			return this._playlists[id];
+		}
+		//Nope it doesn't lets go ahead and return a brand new one.
+
+		var playlist = {
+			_id: id,
+			_current_position: 0,
+			_list: new Array(),
+			id: function() {
+				return id;
+			},
+			selector_for: function(number) {
+				return '#' + id + '-' + number;
+			},
+			element_for: function(number) {
+				return $(this.selector_for(number));
+			},
+			next: function() {
+				this._current_position += 1;
+				this.play();
+				return this._current_position;
+			},
+			prev: function() {
+				this._current_position -= 1;
+				this.play();
+				return this._current_position;
+			},
+			push: function(file) {
+				this._list.push(file);
+				return (this._list.length - 1);
+			},
+			first: function() {
+				this._current_position = 0;
+				this.play();
+				return this._current_position;
+			},
+			is_current: function(number) {
+				return (this._current_position == number) ? true : false;
+			},
+			current: function() {
+				return this._list[this._current_position];
+			},
+			all: function() {
+				return this._list;
+			},
+			play: function(number) {
+				var position = this._current_position;
+				if (typeof(number) != 'undefined' && number != null) {
+					position = number;
+				}
+				media_center.play(this._list[position].toURL());
+			}
+		}
+
+		this._playlists[id] = playlist;
+
+		return playlist;
+	} 
 }

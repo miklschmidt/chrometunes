@@ -5,6 +5,7 @@
 <script src="js/filer.min.js"></script>
 <script src="js/id3v2.js"></script>
 <script src="js/mediacenter.js"></script>
+<link rel='stylesheet' href='css/style.css' type='text/css' media='screen' />
 </head>
 <body>
 <input type="file" id="files" name="files[]" multiple />
@@ -13,6 +14,12 @@
 <script>
 	$(document).ready(function () {
 		media_center.initialize();
+		//test youtube download;
+		//media_center.download_youtube('http://www.youtube.com/watch?feature=player_embedded&v=Ob7vObnFUJc', function(url){
+		//	$.get(url, function(content) {
+		//		document.write(content);
+		//	});
+		//});
 	});
 </script>
 </body>
