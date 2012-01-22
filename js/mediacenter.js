@@ -11,7 +11,46 @@ var media_center = {
 
 	options: {
 		shuffle: false,
-		replay:  false
+		repeat:  false
+	},
+
+	is_playing: false,
+	is_paused: true,
+	current_playlist: 'all',
+
+	fix_buttons: function () {
+		if (this.options.repeat) {
+			$('#extras .repeat_off').hide();
+			$('#extras .repeat_on').show();
+		} else {
+			$('#extras .repeat_off').show();
+			$('#extras .repeat_on').hide();
+		}
+		if (this.options.shuffle) {
+			$('#extras .shuffle_off').hide();
+			$('#extras .shuffle_on').show();
+		} else {
+			$('#extras .shuffle_off').show();
+			$('#extras .shuffle_on').hide();
+		}
+	},
+
+	shuffle: function (boolean) {
+		if (boolean) {
+			this.options.shuffle = true;
+		} else {
+			this.options.shuffle = false;
+		}
+		this.fix_buttons();
+	},
+
+	repeat: function (boolean) {
+		if (boolean) {
+			this.options.repeat = true;
+		} else {
+			this.options.repeat = false;
+		}
+		this.fix_buttons();
 	},
 
 	initialize: function (options) {
@@ -20,6 +59,7 @@ var media_center = {
 		if (typeof(options) != 'undefined' && options !== null) {
 			$.extend(this.options, options);
 		}
+		this.fix_buttons();
 		//Initialize 500 megs of space.
 		window.webkitStorageInfo.requestQuota(PERSISTENT, 500 * 1024 * 1024, function(grantedBytes) {
 			filer.init({persistent: true, size: grantedBytes}, function(fs) { 
@@ -55,10 +95,92 @@ var media_center = {
 			});
 		}, false);
 
-		$('#files').change(function(e) {
-			var files = e.target.files;
-			this.load_files(files);
+		$("#audio").bind('ended', function() {
+			console.log('playback of current song ended, moving on to the next in the playlist');
+			self.next();
+		}).bind('timeupdate', function(e) {
+			var time = e.target.currentTime;
+			var duration = e.target.duration;
+			var progress = time / duration * 100;
+			$("#progress_bar").css('width', progress + '%');
+		}).bind('playing', function(e) {
+			//We started playing, fix buttons.
+			self.is_paused = false;
+			self.is_playing = true;
+			$('#controls .play').hide();
+			$('#controls .pause').show();
+		}).bind('pause', function(e) {
+			//We stopped playing, fix buttons.
+			self.is_paused = true;
+			self.is_playing = false;
+			$('#controls .play').show();
+			$('#controls .pause').hide();
 		});
+
+		$('#controls .play').click(function(e) {
+			e.preventDefault();
+			var audio = $('#audio')[0];
+			if (audio.src !== null && audio.src !== '') {
+				audio.play();
+			}
+		});
+		$('#controls .pause').click(function(e) {
+			e.preventDefault();
+			var audio = $('#audio')[0];
+			audio.pause();
+		});
+		$('#controls .next').click(function(e) {
+			e.preventDefault();
+			self.next();
+		});
+		$('#controls .prev').click(function(e) {
+			e.preventDefault();
+			self.prev();
+		});
+		$('#extras .shuffle_on').click(function(e) {
+			e.preventDefault();
+			self.options.shuffle = false;
+			self.fix_buttons();
+		});
+		$('#extras .shuffle_off').click(function(e) {
+			e.preventDefault();
+			self.options.shuffle = true;
+			self.fix_buttons();
+		});
+		$('#extras .repeat_on').click(function(e) {
+			e.preventDefault();
+			self.options.repeat = false;
+			self.fix_buttons();
+		});
+		$('#extras .repeat_off').click(function(e) {
+			e.preventDefault();
+			self.options.repeat = true;
+			self.fix_buttons();
+		});
+	},
+
+	next: function() {
+		var self = this;
+		var number;
+		var playlist = this.playlist(this.current_playlist);
+		if (self.options.shuffle === true) {
+			number = playlist.random();
+		} else {
+			number = playlist.next();
+		}
+		playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
+	},
+
+	prev: function() {
+		var self = this;
+		var number;
+		var playlist = this.playlist(this.current_playlist);
+		if (self.options.shuffle === true) {
+			number = playlist.random();
+		} else {
+			number = playlist.prev();
+		}
+		playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
 	},
 
 	load_files: function(files, callback) {
@@ -69,7 +191,6 @@ var media_center = {
 				//TODO: Implement support for directories. (ie. webkitRelativePath)
 				filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
 					//success
-
 				}, self.on_error);
 			}
 			self.list_files();
@@ -111,22 +232,6 @@ var media_center = {
 					});
 				});
 			}
-			$("#audio").bind('ended', function() {
-				console.log('playback of current song ended, moving on to the next in the playlist');
-				var number;
-				if (self.options.shuffle === true) {
-					number = playlist.random();
-				} else {
-					number = playlist.next();
-				}
-				playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
-			});
-			$("#audio").bind('timeupdate', function(e) {
-				var time = e.target.currentTime;
-				var duration = e.target.duration;
-				var progress = time / duration * 100;
-				$("#progress_bar").css('width', progress + '%');
-			});
 			//playlist.play();
 		});
 	},
@@ -234,7 +339,7 @@ var media_center = {
 					this._current_position = number;
 				}
 				if (position == (this._list.length)) {
-					if (this.options.replay === true) {
+					if (this.options.repeat === true) {
 						return this.rewind();
 					} else {
 						return false;
