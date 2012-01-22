@@ -9,7 +9,77 @@ var media_center = {
 
 	filer: new Filer(),
 
-	on_error: function () {
+	options: {
+		shuffle: false,
+		replay:  false
+	},
+
+	initialize: function (options) {
+		var filer = this.filer;
+		var self = this;
+		if (typeof(options) != 'undefined' && options !== null) {
+			$.extend(this.options, options);
+		}
+		//Initialize 500 megs of space.
+		window.webkitStorageInfo.requestQuota(PERSISTENT, 500 * 1024 * 1024, function(grantedBytes) {
+			filer.init({persistent: true, size: grantedBytes}, function(fs) { 
+				//success
+				filer.mkdir('/storage', true, function(){ 
+					console.log('directory "storage" was created'); 
+				}, function () {
+					console.log('directory "storage" already exists');		
+				});
+				self.list_files();
+			}, self.on_error);
+		}, self.on_error);
+
+		var $drop = $('#drop_area');
+		var drop = $drop[0];
+		var drop_enter = function(e) {
+			$drop.text('Gimme gimme!');
+			e.stopPropagation();
+			e.preventDefault();
+		}
+
+		drop.addEventListener('dragenter', drop_enter, false);
+		drop.addEventListener('dragover', drop_enter, false);
+		drop.addEventListener('drop', function(e){
+			console.log(e);
+			var files = e.dataTransfer.files;
+			$drop.text('Thank you!');
+			e.stopPropagation();
+			e.preventDefault();
+			console.log('wtf');
+			self.load_files(files, function(){
+				$drop.text('Drop files here!');
+			});
+		}, false);
+
+		$('#files').change(function(e) {
+			var files = e.target.files;
+			this.load_files(files);
+		});
+	},
+
+	load_files: function(files, callback) {
+		var filer = this.filer;
+		var self = this;
+		filer.cd('/storage', function(){
+			for (var i = 0, file; file = files[i]; ++i) {
+				//TODO: Implement support for directories. (ie. webkitRelativePath)
+				filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
+					//success
+
+				}, self.on_error);
+			}
+			self.list_files();
+			if (typeof(callback) == 'function') {
+				callback();
+			}
+		}, self.on_error);
+	},
+
+	on_error: function (e) {
 		console.log('Error: ' + e.name);
 		console.log(e);
 	},
@@ -20,6 +90,7 @@ var media_center = {
 		$('#list').html('<ul></ul>');
 		filer.ls('/storage', function(entries) {
 			var playlist = self.playlist('all');
+			playlist.clear();
 			for (var x = 0; f = entries[x]; ++x) {
 				self.parse_id3(f, function(tags){
 					var $file = $('<li>' + tags.Artist + ' - ' + tags.Title + '</li>');
@@ -42,7 +113,13 @@ var media_center = {
 			}
 			$("#audio").bind('ended', function() {
 				console.log('playback of current song ended, moving on to the next in the playlist');
-				playlist.element_for(playlist.next()).addClass('playing').siblings().removeClass('playing');
+				var number;
+				if (self.options.shuffle === true) {
+					number = playlist.random();
+				} else {
+					number = playlist.next();
+				}
+				playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
 			});
 			//playlist.play();
 		});
@@ -85,36 +162,6 @@ var media_center = {
 		}, self.on_error);
 	},
 
-	initialize: function () {
-		var filer = this.filer;
-		var self = this;
-		//Initialize 500 megs of space.
-		window.webkitStorageInfo.requestQuota(PERSISTENT, 500 * 1024 * 1024, function(grantedBytes) {
-			filer.init({persistent: true, size: grantedBytes}, function(fs) { 
-				//success
-				filer.mkdir('/storage', true, function(){ 
-					console.log('directory "storage" was created'); 
-				}, function () {
-					console.log('directory "storage" already exists');		
-				});
-				self.list_files();
-			}, self.on_error);
-		}, self.on_error);
-
-		$('#files').change(function(e) {
-			filer.cd('/storage', function(){
-				var files = e.target.files;
-				for (var i = 0, file; file = files[i]; ++i) {
-					//TODO: Implement support for directories. (ie. webkitRelativePath)
-					filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
-						//success
-						self.list_files();
-					}, self.on_error);
-				}
-			}, self.on_error);
-		});
-	},
-
 	_playlists: {},
 
 	playlist: function(id) {
@@ -147,11 +194,20 @@ var media_center = {
 				this.play();
 				return this._current_position;
 			},
+			random: function() {
+				this._current_position = Math.floor(Math.random()*(this._list.length -1));
+				this.play();
+				return this._current_position;	
+			},
+			clear: function () {
+				this._list = new Array();
+				this._current_position = 0;
+			},
 			push: function(file) {
 				this._list.push(file);
 				return (this._list.length - 1);
 			},
-			first: function() {
+			rewind: function() {
 				this._current_position = 0;
 				this.play();
 				return this._current_position;
@@ -169,6 +225,14 @@ var media_center = {
 				var position = this._current_position;
 				if (typeof(number) != 'undefined' && number != null) {
 					position = number;
+					this._current_position = number;
+				}
+				if (position == (this._list.length)) {
+					if (this.options.replay === true) {
+						return this.rewind();
+					} else {
+						return false;
+					}
 				}
 				media_center.play(this._list[position].toURL());
 			}

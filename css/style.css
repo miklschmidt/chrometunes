@@ -1,3 +1,29 @@
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+}
+
 .playing {
 	font-weight: bold;
+}
+
+#drop_area {
+	font-size: 55px;
+	border: 4px dotted #ccc;
+	border-radius: 15px;
+	padding: 15px;
+	text-align: center;
+}
+
+ul, li {
+	display:inline-block;
+	width: 400px;
+}
+
+li {
+	cursor: pointer;
+}
+
+li:hover {
+	text-decoration: underline;
 }

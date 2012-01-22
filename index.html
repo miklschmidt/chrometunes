@@ -2,6 +2,7 @@
 <html>
 <head>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 <script src="js/filer.min.js"></script>
 <script src="js/id3v2.js"></script>
 <script src="js/mediacenter.js"></script>
@@ -9,11 +10,14 @@
 </head>
 <body>
 <input type="file" id="files" name="files[]" multiple />
+<div id="drop_area">
+	Drop files here!
+</div>
 <output id="list"></output>
 <audio controls id="audio" src=""></audio>
 <script>
 	$(document).ready(function () {
-		media_center.initialize();
+		media_center.initialize({replay: true, shuffle:true});
 		//test youtube download;
 		//media_center.download_youtube('http://www.youtube.com/watch?feature=player_embedded&v=Ob7vObnFUJc', function(url){
 		//	$.get(url, function(content) {
