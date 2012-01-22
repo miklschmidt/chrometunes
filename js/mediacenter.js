@@ -121,6 +121,12 @@ var media_center = {
 				}
 				playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
 			});
+			$("#audio").bind('timeupdate', function(e) {
+				var time = e.target.currentTime;
+				var duration = e.target.duration;
+				var progress = time / duration * 100;
+				$("#progress_bar").css('width', progress + '%');
+			});
 			//playlist.play();
 		});
 	},

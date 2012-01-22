@@ -9,7 +9,26 @@
 <link rel='stylesheet' href='css/style.css' type='text/css' media='screen' />
 </head>
 <body>
-<input type="file" id="files" name="files[]" multiple />
+<div id="player_wrapper">
+	<div id="player_bar">
+		<div id="controls"></div>
+		<div id="extras"></div>
+		<div id="progress">
+			<div id="progress_wrapper">
+				<div id="progress_background">
+				</div>
+				<div id="progress_bar">
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="shadow">
+		<div class="shadow_left">&nbsp;</div>
+		<div class="shadow_spacer">&nbsp;</div>
+		<div class="shadow_right">&nbsp;</div>
+	</div>
+</div>
+
 <div id="drop_area">
 	Drop files here!
 </div>

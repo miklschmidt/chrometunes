@@ -1,6 +1,15 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
 body {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 12px;
+	min-width: 439px;
+	padding: 25px;
+	margin: 0;
+	background: -webkit-gradient(linear, 100% 0%, 0% 0%, from(#E8EAEC), to(#eaecee), color-stop(.5,#F4F4F5));
 }
 
 .playing {
@@ -13,6 +22,112 @@ body {
 	border-radius: 15px;
 	padding: 15px;
 	text-align: center;
+}
+
+#player_wrapper {
+	position: relative;
+	width: 100%;
+	height: 100px;
+	margin-top: 33px;
+}
+
+#controls {
+	float: left;
+	height: 30px;
+	width: 190px;
+}
+
+#progress {
+	height: 30px;
+	margin: 0px 190px;
+}
+
+#progress_wrapper {
+	width: 100%;
+	top: 8px;
+	height: 20px;
+	background: none;
+	position: relative;
+}
+
+#progress_background {
+	height: 8px;
+	position: absolute;
+	top: 4px;
+	left: 0;
+	width: 100%;
+	cursor: pointer;
+	overflow: hidden;
+	background: #252727;
+	border-radius: 3px;
+	box-shadow: 0px 1px 0px rgba(255,255,255,0.1);
+}
+
+#audio {
+	display: none;
+}
+
+#progress_bar {
+	height: 6px;
+	position: absolute;
+	top: 5px;
+	left: 1px;
+	width: 88%;
+	cursor: pointer;
+	overflow: hidden;
+	background: url(/img/progress.png);
+	border-radius: 2px;
+}
+
+#extras {
+	float: right;
+	height: 30px;
+	width: 190px;
+}
+
+#player_bar {
+	position:absolute;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#484a4c), to(#2b2d2d));
+	left: 67px;
+	right: 67px;
+	height: 30px;
+	border: 1px solid #2b2d2d;
+	box-shadow: 0px 1px 0px rgba(255,255,255, 0.15) inset;
+	border-radius: 4px;
+}
+
+.shadow {
+	position: relative;
+	top: -40px;
+	width: 100%;
+	height: 100px;
+	min-width: 439px;
+}
+
+.shadow_left {
+	position: absolute;
+	width: 216px;
+	left: 25px;
+	top: 0;
+	height: 100px;
+	background: url(/img/shadow_left.png);
+}
+.shadow_right {
+	position: absolute;
+	width: 223px;
+	right: 25px;
+	top:0;
+	height: 100px;
+	background: url(/img/shadow_right.png);
+}
+
+.shadow_spacer {
+	height: 100px;
+	position: absolute;
+	top: 1px;
+	left: 241px;
+	right: 248px;
+	background: url(/img/shadow_spacer.png);
 }
 
 ul, li {
