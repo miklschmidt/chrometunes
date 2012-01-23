@@ -55,13 +55,13 @@ var media_center = {
 
 	initialize: function (options) {
 		var filer = this.filer;
-		var self = this;
+		var me = this;
 		if (typeof(options) != 'undefined' && options !== null) {
 			$.extend(this.options, options);
 		}
 		this.fix_buttons();
 		//Initialize 500 megs of space.
-		window.webkitStorageInfo.requestQuota(PERSISTENT, 500 * 1024 * 1024, function(grantedBytes) {
+		window.webkitStorageInfo.requestQuota(PERSISTENT, 1000 * 1024 * 1024, function(grantedBytes) {
 			filer.init({persistent: true, size: grantedBytes}, function(fs) { 
 				//success
 				filer.mkdir('/storage', true, function(){ 
@@ -69,15 +69,16 @@ var media_center = {
 				}, function () {
 					console.log('directory "storage" already exists');		
 				});
-				self.list_files(function(){
-					var playlist = self.playlist('all');
+				me.list_files(function(){
+					var playlist = me.playlist('all');
 					console.log(playlist);
 					playlist.element_for(playlist.rewind()).addClass('playing').siblings().removeClass('playing');
 					var audio = $('#audio')[0];
 					audio.pause();
 				});
-			}, self.on_error);
-		}, self.on_error);
+				this.filer = filer;
+			}, me.on_error);
+		}, me.on_error);
 
 		var $drop = $('#drop_area');
 		var drop = $drop[0];
@@ -96,14 +97,14 @@ var media_center = {
 			e.stopPropagation();
 			e.preventDefault();
 			console.log('wtf');
-			self.load_files(files, function(){
+			me.load_files(files, function(){
 				$drop.text('Drop files here!');
 			});
 		}, false);
 
 		$("#audio").bind('ended', function() {
 			console.log('playback of current song ended, moving on to the next in the playlist');
-			self.next();
+			me.next();
 		}).bind('timeupdate', function(e) {
 			var time = e.target.currentTime;
 			var duration = e.target.duration;
@@ -111,14 +112,14 @@ var media_center = {
 			$("#progress_bar").css('width', progress + '%');
 		}).bind('playing', function(e) {
 			//We started playing, fix buttons.
-			self.is_paused = false;
-			self.is_playing = true;
+			me.is_paused = false;
+			me.is_playing = true;
 			$('#controls .play').hide();
 			$('#controls .pause').show();
 		}).bind('pause', function(e) {
 			//We stopped playing, fix buttons.
-			self.is_paused = true;
-			self.is_playing = false;
+			me.is_paused = true;
+			me.is_playing = false;
 			$('#controls .play').show();
 			$('#controls .pause').hide();
 		});
@@ -137,39 +138,39 @@ var media_center = {
 		});
 		$('#controls .next').click(function(e) {
 			e.preventDefault();
-			self.next();
+			me.next();
 		});
 		$('#controls .prev').click(function(e) {
 			e.preventDefault();
-			self.prev();
+			me.prev();
 		});
 		$('#extras .shuffle_on').click(function(e) {
 			e.preventDefault();
-			self.options.shuffle = false;
-			self.fix_buttons();
+			me.options.shuffle = false;
+			me.fix_buttons();
 		});
 		$('#extras .shuffle_off').click(function(e) {
 			e.preventDefault();
-			self.options.shuffle = true;
-			self.fix_buttons();
+			me.options.shuffle = true;
+			me.fix_buttons();
 		});
 		$('#extras .repeat_on').click(function(e) {
 			e.preventDefault();
-			self.options.repeat = false;
-			self.fix_buttons();
+			me.options.repeat = false;
+			me.fix_buttons();
 		});
 		$('#extras .repeat_off').click(function(e) {
 			e.preventDefault();
-			self.options.repeat = true;
-			self.fix_buttons();
+			me.options.repeat = true;
+			me.fix_buttons();
 		});
 	},
 
 	next: function() {
-		var self = this;
+		var me = this;
 		var number;
 		var playlist = this.playlist(this.current_playlist);
-		if (self.options.shuffle === true) {
+		if (me.options.shuffle === true) {
 			number = playlist.random();
 		} else {
 			number = playlist.next();
@@ -178,10 +179,10 @@ var media_center = {
 	},
 
 	prev: function() {
-		var self = this;
+		var me = this;
 		var number;
 		var playlist = this.playlist(this.current_playlist);
-		if (self.options.shuffle === true) {
+		if (me.options.shuffle === true) {
 			number = playlist.random();
 		} else {
 			number = playlist.prev();
@@ -191,19 +192,21 @@ var media_center = {
 
 	load_files: function(files, callback) {
 		var filer = this.filer;
-		var self = this;
-		filer.cd('/storage', function(){
+		var me = this;
+		var fsURL = filer.fs.root.toURL()
+		filer.cd('/storage', function(entries){
 			for (var i = 0, file; file = files[i]; ++i) {
 				//TODO: Implement support for directories. (ie. webkitRelativePath)
+				console.log(file);
 				filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
 					//success
-				}, self.on_error);
+				}, me.on_error);
 			}
-			self.list_files();
+			me.list_files();
 			if (typeof(callback) == 'function') {
 				callback();
 			}
-		}, self.on_error);
+		}, me.on_error);
 	},
 
 	on_error: function (e) {
@@ -213,13 +216,13 @@ var media_center = {
 
 	list_files: function (callback) {
 		var filer = this.filer;
-		var self = this;
+		var me = this;
 		$('#list').html('<ul></ul>');
 		filer.ls('/storage', function(entries) {
-			var playlist = self.playlist('all');
+			var playlist = me.playlist('all');
 			playlist.clear();
 			for (var x = 0; f = entries[x]; ++x) {
-				self.parse_id3(f, function(tags){
+				me.parse_id3(f, function(tags){
 					var $file = $('<li>' + tags.Artist + ' - ' + tags.Title + '</li>');
 					$('#list ul').append($file);
 					$file.data('file', f);
@@ -275,11 +278,11 @@ var media_center = {
 
 	delete_library: function () {
 		var filer = this.filer;
-		var self = this;
+		var me = this;
 
 		filer.rm('/storage', function(){
 			console.log('successfully deleted storage folder');
-		}, self.on_error);
+		}, me.on_error);
 	},
 
 	_playlists: {},
@@ -357,10 +360,10 @@ var media_center = {
 				}
 				var file = this._list[position];
 				media_center.play(file.toURL());
-				self = this;
+				me = this;
 				media_center.parse_id3(file, function(tags){
 					console.log($(this.title_selector));
-					$(self.title_selector).text(tags.Artist + ' - ' + tags.Title);
+					$(me.title_selector).text(tags.Artist + ' - ' + tags.Title);
 				});
 			}
 		}
