@@ -10,6 +10,7 @@ body {
 	padding: 25px;
 	margin: 0;
 	background: -webkit-gradient(linear, 100% 0%, 0% 0%, from(#E8EAEC), to(#eaecee), color-stop(.5,#F4F4F5));
+	text-align: center;
 }
 
 .playing {
@@ -18,10 +19,12 @@ body {
 
 #drop_area {
 	font-size: 55px;
-	border: 4px dotted #ccc;
 	border-radius: 15px;
 	padding: 15px;
+	height: 80px;
+	width: 100%;
 	text-align: center;
+
 }
 
 #player_wrapper {
@@ -45,7 +48,7 @@ body {
 }
 
 .wrapper {
-	width: 1160px;
+	width: 1159px;
 	margin: 0 auto;
 	right:0;
 	left:0;
@@ -104,7 +107,7 @@ body {
 }
 
 #case {
-	background: url(/img/back-case.png) top center;
+	background: url(/img/back-nocase.png) top center;
 	left: 67px;
 	right: 67px;
 	height: 261px;
@@ -113,8 +116,8 @@ body {
 	line-height: 231px;
 	text-align: center;
 	font-size: 64px;
-	color: #fff;
-	text-shadow: 0px -30px 10px #000 ;
+	color: #232522;
+	text-shadow: 2px 0px 4px #999;
 }
 
 #audio {
