@@ -27,7 +27,7 @@ body {
 #player_wrapper {
 	position: relative;
 	width: 100%;
-	height: 100px;
+	height: 300px;
 	margin-top: 33px;
 }
 
@@ -42,6 +42,13 @@ body {
 	top: 5px;
 	position: relative;
 	cursor: pointer;
+}
+
+.wrapper {
+	width: 1160px;
+	margin: 0 auto;
+	right:0;
+	left:0;
 }
 
 #player_wrapper .seperator {
@@ -76,6 +83,38 @@ body {
 	background: #252727;
 	border-radius: 3px;
 	box-shadow: 0px 1px 0px rgba(255,255,255,0.1);
+}
+
+#top_bar {
+	position:absolute;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4f5257), to(#2a2d32));
+	left: 67px;
+	right: 67px;
+	height: 30px;
+	top: -31px;
+	border: 1px solid #1e2023; 
+	box-shadow: 0px 1px 0px rgba(255,255,255, 0.15) inset, 0px 5px 3px rgba(0,0,0, 0.1);
+	border-radius: 4px 4px 0px 0px;
+	z-index: 1;
+	font-weight: bold;
+	line-height: 30px;
+	text-align: center;
+	font-size: 16px;
+	color: #fff;
+}
+
+#case {
+	background: url(/img/back-case.png) top center;
+	left: 67px;
+	right: 67px;
+	height: 261px;
+	position:absolute;
+	border-radius: 0px 0px 2px 2px;
+	line-height: 231px;
+	text-align: center;
+	font-size: 64px;
+	color: #fff;
+	text-shadow: 0px -30px 10px #000 ;
 }
 
 #audio {
@@ -117,12 +156,13 @@ body {
 
 #player_bar {
 	position:absolute;
-	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#484a4c), to(#2b2d2d));
+	/*background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#484a4c), to(#2b2d2d));*/
 	left: 67px;
 	right: 67px;
 	height: 30px;
-	border: 1px solid #2b2d2d;
-	box-shadow: 0px 1px 0px rgba(255,255,255, 0.15) inset;
+	top: 230px;
+	/* border: 1px solid #2b2d2d; */
+	/*box-shadow: 0px 1px 0px rgba(255,255,255, 0.15) inset;*/
 	border-radius: 4px;
 }
 
@@ -131,6 +171,7 @@ body {
 	top: -40px;
 	width: 100%;
 	height: 100px;
+	top: 189px;
 	min-width: 439px;
 	z-index: -55;
 }

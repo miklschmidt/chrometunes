@@ -9,42 +9,50 @@
 <link rel='stylesheet' href='css/style.css' type='text/css' media='screen' />
 </head>
 <body>
-<div id="player_wrapper">
-	<div id="player_bar">
-		<div id="controls">
-			<a href="#" class='prev'><img src="/img/prev.png" /></a>
-			<a href="#" class='play'><img src="/img/play.png" /></a>
-			<a href="#" class='pause'><img src="/img/pause.png" /></a>
-			<a href="#" class='next'><img src="/img/next.png" /></a>
-			<img src="/img/seperator.png" class="seperator" />
+<div class="wrapper">
+	<div id="player_wrapper">
+		<div id="top_bar">
+			Awesome Player
 		</div>
-		<div id="extras">
-			<img src="/img/seperator.png" class="seperator" />
-			<a href="#" class='shuffle_off'><img src="/img/shuffle_off.png" /></a>
-			<a href="#" class='shuffle_on'><img src="/img/shuffle_on.png" /></a>
-			<a href="#" class='repeat_off'><img src="/img/repeat_off.png" /></a>
-			<a href="#" class='repeat_on'><img src="/img/repeat_on.png" /></a>
+		<div id="case">
+			test
 		</div>
-		<div id="progress">
-			<div id="progress_wrapper">
-				<div id="progress_background">
-				</div>
-				<div id="progress_bar">
+		<div id="player_bar">
+			<div id="controls">
+				<a href="#" class='prev'><img src="/img/prev.png" /></a>
+				<a href="#" class='play'><img src="/img/play.png" /></a>
+				<a href="#" class='pause'><img src="/img/pause.png" /></a>
+				<a href="#" class='next'><img src="/img/next.png" /></a>
+				<img src="/img/seperator.png" class="seperator" />
+			</div>
+			<div id="extras">
+				<img src="/img/seperator.png" class="seperator" />
+				<a href="#" class='shuffle_off'><img src="/img/shuffle_off.png" /></a>
+				<a href="#" class='shuffle_on'><img src="/img/shuffle_on.png" /></a>
+				<a href="#" class='repeat_off'><img src="/img/repeat_off.png" /></a>
+				<a href="#" class='repeat_on'><img src="/img/repeat_on.png" /></a>
+			</div>
+			<div id="progress">
+				<div id="progress_wrapper">
+					<div id="progress_background">
+					</div>
+					<div id="progress_bar">
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="shadow">
-		<div class="shadow_left">&nbsp;</div>
-		<div class="shadow_spacer">&nbsp;</div>
-		<div class="shadow_right">&nbsp;</div>
+		<div class="shadow">
+			<div class="shadow_left">&nbsp;</div>
+			<div class="shadow_spacer">&nbsp;</div>
+			<div class="shadow_right">&nbsp;</div>
+		</div>
 	</div>
 </div>
-
-<div id="drop_area">
-	Drop files here!
+	<div id="drop_area">
+		Drop files here!
+	</div>
+	<output id="list"></output>
 </div>
-<output id="list"></output>
 <audio controls id="audio" src=""></audio>
 <script>
 	$(document).ready(function () {

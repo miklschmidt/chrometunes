@@ -286,6 +286,7 @@ var media_center = {
 			_id: id,
 			_current_position: 0,
 			_list: new Array(),
+			title_selector: '#case',
 			id: function() {
 				return id;
 			},
@@ -345,7 +346,13 @@ var media_center = {
 						return false;
 					}
 				}
-				media_center.play(this._list[position].toURL());
+				var file = this._list[position];
+				media_center.play(file.toURL());
+				self = this;
+				media_center.parse_id3(file, function(tags){
+					console.log($(this.title_selector));
+					$(self.title_selector).text(tags.Artist + ' - ' + tags.Title);
+				});
 			}
 		}
 
