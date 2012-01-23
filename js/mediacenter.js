@@ -69,7 +69,13 @@ var media_center = {
 				}, function () {
 					console.log('directory "storage" already exists');		
 				});
-				self.list_files();
+				self.list_files(function(){
+					var playlist = self.playlist('all');
+					console.log(playlist);
+					playlist.element_for(playlist.rewind()).addClass('playing').siblings().removeClass('playing');
+					var audio = $('#audio')[0];
+					audio.pause();
+				});
 			}, self.on_error);
 		}, self.on_error);
 
@@ -205,7 +211,7 @@ var media_center = {
 		console.log(e);
 	},
 
-	list_files: function () {
+	list_files: function (callback) {
 		var filer = this.filer;
 		var self = this;
 		$('#list').html('<ul></ul>');
@@ -231,6 +237,9 @@ var media_center = {
 						$file.addClass('playing');
 					});
 				});
+			}
+			if (typeof(callback) == 'function') {
+				callback();
 			}
 			//playlist.play();
 		});
