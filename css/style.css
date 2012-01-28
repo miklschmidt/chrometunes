@@ -11,6 +11,7 @@ body {
 	margin: 0;
 	background: -webkit-gradient(linear, 100% 0%, 0% 0%, from(#E8EAEC), to(#eaecee), color-stop(.5,#F4F4F5));
 	text-align: center;
+	text-shadow: 1px 1px 1px #fff;
 }
 
 .playing {
@@ -144,6 +145,11 @@ body {
 	width: 70px;
 }
 
+li a {
+	margin-left: 15px;
+	float: right;
+}
+
 #extras a {
 	right: 5px;
 	top: 5px;
@@ -209,11 +215,13 @@ body {
 
 ul, li {
 	display:inline-block;
-	width: 400px;
+	width: 700px;
+	text-align: left;
 }
 
 li {
 	cursor: pointer;
+	text-shadow: 1px 1px 1px #fff;
 }
 
 li:hover {

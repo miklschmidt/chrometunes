@@ -239,6 +239,14 @@ var media_center = {
 						$file.siblings().removeClass('playing');
 						$file.addClass('playing');
 					});
+					var $del = jQuery('<a href="#">Delete</a>');
+					$file.append($del);
+					$del.click(function() {
+						var $f = $(this).parent();
+						filer.rm($f.data('file'), function() {
+							me.list_files();
+						});
+					})
 				});
 			}
 			if (typeof(callback) == 'function') {
