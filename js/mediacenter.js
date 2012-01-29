@@ -54,6 +54,10 @@ var media_center = {
 	},
 
 	initialize: function (options) {
+
+		window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL ||
+                            			   window.webkitResolveLocalFileSystemURL;
+
 		var filer = this.filer;
 		var me = this;
 		if (typeof(options) != 'undefined' && options !== null) {
@@ -71,7 +75,6 @@ var media_center = {
 				});
 				me.list_files(function(){
 					var playlist = me.playlist('all');
-					console.log(playlist);
 					playlist.element_for(playlist.rewind()).addClass('playing').siblings().removeClass('playing');
 					var audio = $('#audio')[0];
 					audio.pause();
@@ -80,6 +83,14 @@ var media_center = {
 			}, me.on_error);
 		}, me.on_error);
 
+		this.setup_drop_handlers();
+		this.setup_audio_element();
+		this.setup_controls();
+
+	},
+
+	setup_drop_handlers: function () {
+		var me = this;
 		var $drop = $('#drop_area');
 		var drop = $drop[0];
 		var drop_enter = function(e) {
@@ -91,17 +102,18 @@ var media_center = {
 		drop.addEventListener('dragenter', drop_enter, false);
 		drop.addEventListener('dragover', drop_enter, false);
 		drop.addEventListener('drop', function(e){
-			console.log(e);
 			var files = e.dataTransfer.files;
 			$drop.text('Thank you!');
 			e.stopPropagation();
 			e.preventDefault();
-			console.log('wtf');
 			me.load_files(files, function(){
 				$drop.text('Drop files here!');
 			});
 		}, false);
+	},
 
+	setup_audio_element: function() {
+		var me = this;
 		$("#audio").bind('ended', function() {
 			console.log('playback of current song ended, moving on to the next in the playlist');
 			me.next();
@@ -123,7 +135,10 @@ var media_center = {
 			$('#controls .play').show();
 			$('#controls .pause').hide();
 		});
+	},
 
+	setup_controls: function() {
+		var me = this;
 		$('#controls .play').click(function(e) {
 			e.preventDefault();
 			var audio = $('#audio')[0];
@@ -197,7 +212,6 @@ var media_center = {
 		filer.cd('/storage', function(entries){
 			for (var i = 0, file; file = files[i]; ++i) {
 				//TODO: Implement support for directories. (ie. webkitRelativePath)
-				console.log(file);
 				filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
 					//success
 				}, me.on_error);
@@ -221,39 +235,62 @@ var media_center = {
 		filer.ls('/storage', function(entries) {
 			var playlist = me.playlist('all');
 			playlist.clear();
+			//playlist.bind('play');
+			var parse_count = 0;
 			for (var x = 0; f = entries[x]; ++x) {
-				me.parse_id3(f, function(tags){
-					var $file = $('<li>' + tags.Artist + ' - ' + tags.Title + '</li>');
-					$('#list ul').append($file);
-					$file.data('file', f);
-					//Add to playlist.
-					var id = playlist.id();
-					var number = playlist.push(f);
-					$file.data('playlist_id', id)
-					$file.data('playlist_number', number);
-					$file.attr('id', id + '-' + number);
-					//Make the file play on click.
-					$file.click(function(){
-						var $f = $(this);
-						playlist.play(number);
-						$file.siblings().removeClass('playing');
-						$file.addClass('playing');
-					});
-					var $del = jQuery('<a href="#">Delete</a>');
-					$file.append($del);
-					$del.click(function() {
-						var $f = $(this).parent();
-						filer.rm($f.data('file'), function() {
-							me.list_files();
-						});
-					})
+				var song = new Song({file_url: f.toURL()});
+				song.bind('id3_parsed', function(){
+					playlist.push(this);
+					parse_count++;
+					if (parse_count >= (entries.length - 2)) {
+						playlist.trigger('populated');
+					}
 				});
 			}
-			if (typeof(callback) == 'function') {
-				callback();
-			}
+			//Make a list of songs
+			playlist.bind('populated', function() {
+				me.populate_list(this);
+			})
+
 			//playlist.play();
 		});
+	},
+
+	populate_list: function(playlist) {
+		var songs = playlist.all();
+		for(song in songs) {
+			var $file = $('<li>' + songs[song].get('artist') + ' - ' + songs[song].get('album') + ' - ' + songs[song].get('title') + '</li>');
+			$('#list ul').append($file);
+			$file.data('song', songs[song]);
+			//Add to playlist.
+			var id = playlist.get('dom_id');
+			var number = song;
+			$file.data('playlist_id', id)
+			$file.data('playlist_number', number);
+			$file.attr('id', id + '-' + number);
+			//Make the file play on click.
+			$file.click(function(){
+				var $f = $(this);
+				var number = $f.data('playlist_number');
+				playlist.play(number);
+				$f.siblings().removeClass('playing');
+				$f.addClass('playing');
+			});
+			var $del = jQuery('<a href="#">Delete</a>');
+			$file.append($del);
+			$del.click(function() {
+				var $f = $(this).parent();
+				$f.data('song').get_file_entry(function(file_entry){
+					filer.rm(file_entry, function() {
+						me.list_files();
+					});
+				});
+			});
+		}
+		//do callback
+		if (typeof(callback) == 'function') {
+			callback();
+		}
 	},
 
 	play: function(file_url) {
@@ -265,13 +302,12 @@ var media_center = {
 		//TODO: Use FileSystem instead of local storage.
 		if (localStorage[file_entry.fullPath]) {
 			//Return cached ID3 tags.
-			console.log('id3 info allready in localstorage. returning.')
+			console.log('id3 info allready in localstorage. returning.');
 			return callback(JSON.parse(localStorage[file_entry.fullPath]));
 		} 
 		file_entry.file(function(file) {
 			//Generate and cache ID3 tags.
 			ID3v2.parseFile(file,function(tags){
-				console.log('parsing id3.')
 				localStorage[file_entry.fullPath] = JSON.stringify({
 					Title: tags.Title,
 					Artist: tags.Artist,
@@ -295,89 +331,28 @@ var media_center = {
 
 	_playlists: {},
 
-	playlist: function(id) {
+	playlist: function(id, name) {
 		//Check if the playlist id allready exist.
 		if (typeof(this._playlists[id]) != 'undefined' && this._playlists[id] !== null) {
 			return this._playlists[id];
 		}
 		//Nope it doesn't lets go ahead and return a brand new one.
 
-		var playlist = {
-			_id: id,
-			_current_position: 0,
-			_list: new Array(),
-			title_selector: '#case',
-			id: function() {
-				return id;
-			},
-			selector_for: function(number) {
-				return '#' + id + '-' + number;
-			},
-			element_for: function(number) {
-				return $(this.selector_for(number));
-			},
-			next: function() {
-				this._current_position += 1;
-				this.play();
-				return this._current_position;
-			},
-			prev: function() {
-				this._current_position -= 1;
-				this.play();
-				return this._current_position;
-			},
-			random: function() {
-				this._current_position = Math.floor(Math.random()*(this._list.length -1));
-				this.play();
-				return this._current_position;	
-			},
-			clear: function () {
-				this._list = new Array();
-				this._current_position = 0;
-			},
-			push: function(file) {
-				this._list.push(file);
-				return (this._list.length - 1);
-			},
-			rewind: function() {
-				this._current_position = 0;
-				this.play();
-				return this._current_position;
-			},
-			is_current: function(number) {
-				return (this._current_position == number) ? true : false;
-			},
-			current: function() {
-				return this._list[this._current_position];
-			},
-			all: function() {
-				return this._list;
-			},
-			play: function(number) {
-				var position = this._current_position;
-				if (typeof(number) != 'undefined' && number != null) {
-					position = number;
-					this._current_position = number;
-				}
-				if (position == (this._list.length)) {
-					if (this.options.repeat === true) {
-						return this.rewind();
-					} else {
-						return false;
-					}
-				}
-				var file = this._list[position];
-				media_center.play(file.toURL());
-				me = this;
-				media_center.parse_id3(file, function(tags){
-					console.log($(this.title_selector));
-					$(me.title_selector).text(tags.Artist + ' - ' + tags.Title);
-				});
-			}
+		if (typeof(name) == 'undefined'|| name === null) {
+			//Hack, shouldn't work like this..
+			name = 'All songs';
 		}
 
-		this._playlists[id] = playlist;
+		var new_playlist = new Playlist({
+			dom_id: id,
+			name: name
+		});
+		new_playlist.bind('change:current_song', function(playlist){
+			var song = playlist.get('current_song');
+			$('#case').text(song.get('artist') + ' - ' + song.get('title'));
+		});
+		this._playlists[id] = new_playlist;
 
-		return playlist;
+		return new_playlist;
 	} 
 }

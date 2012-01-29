@@ -3,8 +3,14 @@
 <head>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script src="js/filer.js"></script>
-<script src="js/id3v2.js"></script>
+<script src="js/libs/filer.js"></script>
+<script src="js/libs/underscore.js"></script>
+<script src="js/libs/json2.js"></script>
+<script src="js/libs/backbone.js"></script>
+<script src="js/libs/backbone-indexeddb.js"></script>
+<script src="js/libs/id3v2.js"></script>
+<script src="js/models/song.model.js"></script>
+<script src="js/models/playlist.model.js"></script>
 <script src="js/mediacenter.js"></script>
 <link rel='stylesheet' href='css/style.css' type='text/css' media='screen' />
 </head>
@@ -12,7 +18,7 @@
 <div class="wrapper">
 	<div id="player_wrapper">
 		<div id="case">
-			test
+			Click a song to start playing!
 		</div>
 		<div id="player_bar">
 			<div id="controls">
@@ -60,6 +66,7 @@
 		//		document.write(content);
 		//	});
 		//});
+		media_center.playlist('all').console_print();
 	});
 </script>
 </body>
