@@ -259,33 +259,15 @@ var media_center = {
 	populate_list: function(playlist) {
 		var songs = playlist.all();
 		for(song in songs) {
-			var $file = $('<li>' + songs[song].get('artist') + ' - ' + songs[song].get('album') + ' - ' + songs[song].get('title') + '</li>');
-			$('#list ul').append($file);
-			$file.data('song', songs[song]);
-			//Add to playlist.
-			var id = playlist.get('dom_id');
-			var number = song;
-			$file.data('playlist_id', id)
-			$file.data('playlist_number', number);
-			$file.attr('id', id + '-' + number);
-			//Make the file play on click.
-			$file.click(function(){
-				var $f = $(this);
-				var number = $f.data('playlist_number');
-				playlist.play(number);
-				$f.siblings().removeClass('playing');
-				$f.addClass('playing');
+			var id = song;
+			var view = new SongView({
+				model: songs[song], 
+				id: playlist.get('dom_id') + '-' + id,
+				playlist: playlist,
+				number: song
 			});
-			var $del = jQuery('<a href="#">Delete</a>');
-			$file.append($del);
-			$del.click(function() {
-				var $f = $(this).parent();
-				$f.data('song').get_file_entry(function(file_entry){
-					filer.rm(file_entry, function() {
-						me.list_files();
-					});
-				});
-			});
+			view.render();
+			$('#list ul').append(view.el);
 		}
 		//do callback
 		if (typeof(callback) == 'function') {
