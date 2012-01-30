@@ -12,7 +12,8 @@ var SongView = Backbone.View.extend({
 		}, this)
 	},
 
-	play: function() {
+	play: function(e) {
+		e.preventDefault();
 		var playlist = this.options.playlist;
 		var $f = $(this.el);
 		var number = this.options.number;
@@ -21,11 +22,17 @@ var SongView = Backbone.View.extend({
 		$f.addClass('playing');
 	},
 
-	destroy: function() {
+	destroy: function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		var $f = $(this.el);
+		var song = $f.data('song');
+		if (song.cid === this.options.playlist.get('current_song').cid) {
+			this.options.playlist.next();
+		}
 		$f.data('song').get_file_entry(function(file_entry){
 			filer.rm(file_entry, function() {
-				this.remove();
+				$f.remove();
 			});
 		});
 	},
@@ -34,7 +41,7 @@ var SongView = Backbone.View.extend({
 		var song = this.model;
 		var playlist = this.options.playlist;
 		$song = $(this.el);
-		$song.text(song.get('artist') + ' - ' + song.get('album') + ' - ' + song.get('title'));
+		$song.text(song.get('artist') + ' - ' + song.get('title'));
 		
 		$song.data('song', song);
 

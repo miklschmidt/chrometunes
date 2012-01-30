@@ -10,19 +10,19 @@ var Song = Backbone.Model.extend({
 		year: "Unknown Year",
 		pictures: new Array(),
 		composer: "Unknown Composer",
-		id3_parsed: false,
+		file_parsed: false,
 	},
 	initialize: function() {
 		this.bind('change:file_url', function(song) {
 			song.set({id3_parsed: false});
-			song.parse_id3();
+			song.parse_file();
 		});
-		if (this.get('id3_parsed') === false) {
-			this.parse_id3();
+		if (this.get('file_parsed') === false) {
+			this.parse_file();
 		}
 	},
-	parse_id3: function() {
-		if (this.get('id3_parsed') === false) {
+	parse_file: function() {
+		if (this.get('file_parsed') === false) {
 			var filer = media_center.filer;
 			var url = this.get('file_url');
 			var song = this;
@@ -37,7 +37,7 @@ var Song = Backbone.Model.extend({
 					}
 					return new_string;
 				}
-				//Generate and cache ID3 tags.
+				//Try parsing ID3 tags.
 				ID3v2.parseFile(file,function(tags){
 					var attributes = {};
 					for (var tag in tags) {
@@ -46,9 +46,35 @@ var Song = Backbone.Model.extend({
 							attributes[_tag] = tags[tag];
 						}
 					}
+					if (!attributes.title || !attributes.artist) {
+						//ID3 tags are insufficient, parse filename
+						//Example 01-sugarland-all_i_want_to_do.mp3
+						var name = file.fileName;
+						var tmp = name.split('.');
+						tmp = tmp[0];
+						var fragments = tmp.split('-');
+						for (index in fragments) {
+							var fragment = fragments[index];
+							//Test if we have a number.
+							if (!isNaN(fragment)) {
+								//Probably track number
+								attributes.track_number = fragment;
+							} else {
+								fragment = fragment.replace(/_/gi, ' ').capitalize();
+								if (!attributes.artist) {
+									//First string should be the artist name
+									attributes.artist = fragment;
+								} else {
+									//We are gonna assume the rest is the title.
+									if (!attributes.title) attributes.title = fragment;
+									else attributes.title += ' - ' + fragment;
+								}
+							}
+						}
+					}
 					song.set(attributes);
-					song.set({id3_parsed: true});
-					song.trigger('id3_parsed');
+					song.set({file_parsed: true});
+					song.trigger('file_parsed');
 				});
 			})
 		}

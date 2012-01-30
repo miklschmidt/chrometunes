@@ -5,6 +5,10 @@
  *	TODO: Make files downloadable (ie. transferable to user defined folder.. dno how yet);
  */
 
+String.prototype.capitalize = function(){
+   return this.replace( /(^|\s|\()([a-z])/g , function(m,p1,p2){ return p1+p2.toUpperCase(); } );
+};
+
 var media_center = {
 
 	filer: new Filer(),
@@ -56,7 +60,7 @@ var media_center = {
 	initialize: function (options) {
 
 		window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL ||
-                            			   window.webkitResolveLocalFileSystemURL;
+										   window.webkitResolveLocalFileSystemURL;
 
 		var filer = this.filer;
 		var me = this;
@@ -114,6 +118,7 @@ var media_center = {
 
 	setup_audio_element: function() {
 		var me = this;
+		audio = $("#audio")[0];
 		$("#audio").bind('ended', function() {
 			console.log('playback of current song ended, moving on to the next in the playlist');
 			me.next();
@@ -134,6 +139,18 @@ var media_center = {
 			me.is_playing = false;
 			$('#controls .play').show();
 			$('#controls .pause').hide();
+		});
+		$('#progress_background, #progress_bar').click(function(e) {
+			if (audio.readyState > 3) {
+				var bg = $('#progress_background');
+				var offset = bg.offset();
+				var value = e.pageX - offset.left;
+				var duration_factor = value/bg.width();
+				audio.currentTime = audio.duration * duration_factor;
+				if (audio.paused) {
+					audio.play();
+				}
+			}
 		});
 	},
 
@@ -239,7 +256,7 @@ var media_center = {
 			var parse_count = 0;
 			for (var x = 0; f = entries[x]; ++x) {
 				var song = new Song({file_url: f.toURL()});
-				song.bind('id3_parsed', function(){
+				song.bind('file_parsed', function(){
 					playlist.push(this);
 					parse_count++;
 					if (parse_count >= (entries.length - 2)) {
