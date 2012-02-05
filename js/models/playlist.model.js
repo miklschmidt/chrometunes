@@ -76,8 +76,8 @@ var Playlist = Backbone.Model.extend({
 		}
 		console.log(position);
 		var song = this.get('list').models[position];
-		this.set({current_song: song});
 		media_center.play(song.get('file_url'));
+		this.set({current_song: song});
 	}
 });
 

@@ -13,66 +13,75 @@
 <script src="js/models/playlist.model.js"></script>
 <script src="js/views/song.view.js"></script>
 <script src="js/mediacenter.js"></script>
-<link rel='stylesheet' href='css/style.css' type='text/css' media='screen' />
+<link rel='stylesheet' href='http://twitter.github.com/bootstrap/assets/css/bootstrap.css' type='text/css' media='screen' />
+<link rel='stylesheet' href='http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css' type='text/css' media='screen' />
+<link rel='stylesheet/less' href='css/style.less' type='text/css' media='screen' />
+<script src="js/libs/less-1.2.1.min.js"></script>
 </head>
 <body>
-<div class="wrapper">
-	<div id="player_wrapper">
-		<div id="case">
-			Click a song to start playing!
-		</div>
-		<div id="player_bar">
-			<div id="controls">
-				<a href="#" class='prev'><img src="/img/prev.png" /></a>
-				<a href="#" class='play'><img src="/img/play.png" /></a>
-				<a href="#" class='pause'><img src="/img/pause.png" /></a>
-				<a href="#" class='next'><img src="/img/next.png" /></a>
-				<img src="/img/seperator.png" class="seperator" />
-			</div>
-			<div id="extras">
-				<img src="/img/seperator.png" class="seperator" />
-				<a href="#" class='shuffle_off'><img src="/img/shuffle_off.png" /></a>
-				<a href="#" class='shuffle_on'><img src="/img/shuffle_on.png" /></a>
-				<a href="#" class='repeat_off'><img src="/img/repeat_off.png" /></a>
-				<a href="#" class='repeat_on'><img src="/img/repeat_on.png" /></a>
-			</div>
-			<div id="progress">
-				<div id="progress_wrapper">
-					<div id="progress_background">
-					</div>
-					<div id="progress_bar">
-					</div>
-
+<div class="navbar navbar">
+	<div class="navbar-inner">
+		<div class="container">
+			<a class="brand" href="#">Mediaplayer</a>
+			<div class='screen bg'>
+				<div id="currently_playing">
+					Click a song to start playing
 				</div>
 			</div>
 		</div>
-		<div class="shadow">
-			<div class="shadow_left">&nbsp;</div>
-			<div class="shadow_spacer">&nbsp;</div>
-			<div class="shadow_right">&nbsp;</div>
+		<div class="container">
+			<div id="top_player">
+				<div id="controls">
+					<a href="#" class='prev'><img src="/img/prev.png" /></a>
+					<a href="#" class='play'><img src="/img/play.png" /></a>
+					<a href="#" class='pause'><img src="/img/pause.png" /></a>
+					<a href="#" class='next'><img src="/img/next.png" /></a>
+				</div>
+				<div id="extras">
+					<a href="#" class='shuffle_off'><img src="/img/shuffle_off.png" /></a>
+					<a href="#" class='shuffle_on'><img src="/img/shuffle_on.png" /></a>
+					<a href="#" class='repeat_off'><img src="/img/repeat_off.png" /></a>
+					<a href="#" class='repeat_on'><img src="/img/repeat_on.png" /></a>
+				</div>
+				<div id="progress">
+					<div id="progress_wrapper">
+						<div id="progress_background">
+						</div>
+						<div id="progress_bar">
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-
-	<div id="drop_area">
-	</div>
-
-	<aside class="menu">
-		<div class="header"><span class="image playlist"></span>Music<span class="count">75</span></div>
-		<div class="header"><span class="image playlist"></span>Video<span class="count">75</span></div>
-		<div class="header active"><span class="image playlist"></span>Playlists<span class="count">75</span></div>
-		<div class="content">
-			<ul>
-				<li>Unnamed Playlist<span class="count">15</span></li>
-				<li>Bernhoft<span class="count">12</span></li>
-				<li>Shinedown<span class="count">25</span></li>
-				<li class="add_new">New playlist</li>
-			</ul>
-		</div>
-		<div class="header"><span class="image playlist"></span>Friends<span class="count">75</span></div>
-	</aside>
-	<output id="list"></output>
 </div>
-
+<div class="container">
+	<div class='row'>
+		<div class='span3'>
+			<aside class="menu">
+				<div class="header"><span class="image playlist"></span>Artists<span class="count">15</span></div>
+				<div class="header"><span class="image playlist"></span>Albums<span class="count">18</span></div>
+				<div class="header"><span class="image playlist"></span>Genres<span class="count">7</span></div>
+				<div class="header"><span class="image playlist"></span>Songs<span class="count">15</span></div>
+				<div class="header active"><span class="image playlist"></span>Playlists<span class="count">175</span></div>
+				<div class="content">
+					<ul>
+						<li>Unnamed Playlist<span class="count">15</span></li>
+						<li>Bernhoft<span class="count">12</span></li>
+						<li>Shinedown<span class="count">25</span></li>
+						<li class="add_new">New playlist</li>
+					</ul>
+				</div>
+				<div class="header"><span class="image playlist"></span>Friends<span class="count">75</span></div>
+			</aside>
+		</div>
+		<div class="main span9">
+			<div id="drop_area">
+			</div>
+			<output id="list"></output>
+		</div>
+	</div>
+</div>
 <audio controls id="audio" src=""></audio>
 <script>
 	$(document).ready(function () {
@@ -83,7 +92,8 @@
 		//		document.write(content);
 		//	});
 		//});
-		media_center.playlist('all').console_print();
+		//media_center.playlist('all').console_print();
+
 	});
 </script>
 </body>

@@ -8,6 +8,12 @@
 String.prototype.capitalize = function(){
    return this.replace( /(^|\s|\()([a-z])/g , function(m,p1,p2){ return p1+p2.toUpperCase(); } );
 };
+/*var context = new window.webkitAudioContext();
+var analyser = context.createAnalyser();
+analyser.fftSize = 4096;
+var gain = context.createGainNode();
+var audio = $('#audio')[0];
+var source = null;*/
 
 var media_center = {
 
@@ -152,6 +158,7 @@ var media_center = {
 				}
 			}
 		});
+
 	},
 
 	setup_controls: function() {
@@ -266,15 +273,16 @@ var media_center = {
 			}
 			//Make a list of songs
 			playlist.bind('populated', function() {
-				me.populate_list(this);
+				me.populate_list(this, callback);
 			})
 
 			//playlist.play();
 		});
 	},
 
-	populate_list: function(playlist) {
+	populate_list: function(playlist, callback) {
 		var songs = playlist.all();
+		var self = this;
 		for(song in songs) {
 			var id = song;
 			var view = new SongView({
@@ -348,7 +356,7 @@ var media_center = {
 		});
 		new_playlist.bind('change:current_song', function(playlist){
 			var song = playlist.get('current_song');
-			$('#case').text(song.get('artist') + ' - ' + song.get('title'));
+			$('#currently_playing').text(song.get('artist') + ' - ' + song.get('title'));
 		});
 		this._playlists[id] = new_playlist;
 
