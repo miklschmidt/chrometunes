@@ -20,7 +20,29 @@ var Song = Backbone.Model.extend({
 		if (this.get('file_parsed') === false) {
 			this.parse_file();
 		}
+		this.bind('id3_parsed', function() {
+			this.set({duration: this.calc_duration()});
+		});
 	},
+
+	calc_duration: function () {
+		//This is an extremely horrible way to do this. But it works for now..
+		var audio = new Audio();
+		audio.src = this.get('file_url');
+		var self = this;
+		setTimeout(function() {
+			console.log(audio.duration);
+			var duration = audio.duration;
+			delete(audio);
+			console.log(duration);
+			duration = (new Date).clearTime()
+	          .addSeconds(duration)
+	          .toString('mm:ss');  
+	        self.set({duration: duration});
+	        self.trigger('file_parsed');
+		}, 2000);
+	},
+
 	parse_file: function() {
 		if (this.get('file_parsed') === false) {
 			var filer = media_center.filer;
@@ -74,7 +96,7 @@ var Song = Backbone.Model.extend({
 					}
 					song.set(attributes);
 					song.set({file_parsed: true});
-					song.trigger('file_parsed');
+					song.trigger('id3_parsed');
 				});
 			})
 		}

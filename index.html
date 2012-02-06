@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Mediaplayer v0.1.0</title>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
 <script src="js/libs/filer.js"></script>
@@ -9,9 +10,11 @@
 <script src="js/libs/backbone.js"></script>
 <script src="js/libs/backbone-indexeddb.js"></script>
 <script src="js/libs/id3v2.js"></script>
+<script src="js/libs/date.js"></script>
 <script src="js/models/song.model.js"></script>
 <script src="js/models/playlist.model.js"></script>
-<script src="js/views/song.view.js"></script>
+<script src="js/views/song_list_entry.view.js"></script>
+<script src="js/views/playlist_menu_entry.view.js"></script>
 <script src="js/mediacenter.js"></script>
 <link rel='stylesheet' href='http://twitter.github.com/bootstrap/assets/css/bootstrap.css' type='text/css' media='screen' />
 <link rel='stylesheet' href='http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css' type='text/css' media='screen' />
@@ -22,8 +25,11 @@
 <div class="navbar navbar">
 	<div class="navbar-inner">
 		<div class="container">
-			<a class="brand" href="#">Mediaplayer</a>
+			<a class="brand" href="#"><span class="chrome">Chrome</span><span class="tunes">Tunes</span></a>
 			<div class='screen bg'>
+				<div id="current_duration">
+					0:00 / 0:00
+				</div>
 				<div id="currently_playing">
 					Click a song to start playing
 				</div>
@@ -58,27 +64,31 @@
 <div class="container">
 	<div class='row'>
 		<div class='span3'>
-			<aside class="menu">
-				<div class="header"><span class="image playlist"></span>Artists<span class="count">15</span></div>
-				<div class="header"><span class="image playlist"></span>Albums<span class="count">18</span></div>
-				<div class="header"><span class="image playlist"></span>Genres<span class="count">7</span></div>
-				<div class="header"><span class="image playlist"></span>Songs<span class="count">15</span></div>
-				<div class="header active"><span class="image playlist"></span>Playlists<span class="count">175</span></div>
-				<div class="content">
-					<ul>
-						<li>Unnamed Playlist<span class="count">15</span></li>
-						<li>Bernhoft<span class="count">12</span></li>
-						<li>Shinedown<span class="count">25</span></li>
-						<li class="add_new">New playlist</li>
-					</ul>
-				</div>
-				<div class="header"><span class="image playlist"></span>Friends<span class="count">75</span></div>
+			<aside class="menu" id="main_menu">
+				<div class="header artists"><span class="image playlist"></span>Artists<span class="count">0</span></div>
+				<div class="header albums"><span class="image playlist"></span>Albums<span class="count">0</span></div>
+				<div class="header genres"><span class="image playlist"></span>Genres<span class="count">0</span></div>
+				<div class="header playlists"><span class="image playlist"></span>Playlists<span class="count">0</span></div>
+				<div class="header"><span class="image playlist"></span>Friends<span class="count">0</span></div>
 			</aside>
 		</div>
 		<div class="main span9">
 			<div id="drop_area">
 			</div>
-			<output id="list"></output>
+			<table>
+				<thead>
+					<tr>
+						<th>Artist</th>
+						<th>Song</th>
+						<th>Duration</th>
+						<th>Album</th>
+						<th>Genre</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody id='list'>
+				</tbody>
+			</table>
 		</div>
 	</div>
 </div>

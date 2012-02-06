@@ -3,13 +3,18 @@ var Playlist = Backbone.Model.extend({
 		name: 'Unnamed Playlist',
 		current_position: 0,
 		current_song: null,
-		list: new SongCollection(),
+		list: null,
 		dom_id: Math.floor(Math.random()*1000)
+	},
+	initialize: function () {
+		this.set({list: new SongCollection()});
 	},
 	selector_for: function(number) {
 		return '#' + this.get('dom_id') + '-' + number;
 	},
 	element_for: function(number) {
+		console.log('returning element:');
+		console.log(this.selector_for(number));
 		return $(this.selector_for(number));
 	},
 	move_to: function (number) {
@@ -38,7 +43,6 @@ var Playlist = Backbone.Model.extend({
 	push: function(song) {
 		var list = this.get('list');
 		list.add(song);
-		this.set({list: list});
 		return (list.length - 1);
 	},
 	rewind: function() {
@@ -78,6 +82,7 @@ var Playlist = Backbone.Model.extend({
 		var song = this.get('list').models[position];
 		media_center.play(song.get('file_url'));
 		this.set({current_song: song});
+		this.element_for(position).addClass('playing').siblings().removeClass('playing');
 	}
 });
 
