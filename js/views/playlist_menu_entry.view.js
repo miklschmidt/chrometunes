@@ -29,7 +29,7 @@ var PlaylistMenuEntryView = Backbone.View.extend({
 		var playlist = this.model;
 		var list = playlist.get('list');
 		$entry = $(this.el);
-		$entry.html(playlist.get('name') + '<span class="count">' + list.length + '</span>');
+		$entry.html('<span class="count">' + list.length + '</span>' + playlist.get('name'));
 		$entry.attr('id', this.id);
 		return this;
 	}

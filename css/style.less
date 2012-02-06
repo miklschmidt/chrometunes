@@ -360,14 +360,16 @@ aside.menu {
 .menu .content li {
 	display: block;
 	border-bottom: 1px solid #efeff0;
-	height: 36px;
+	min-height: 36px;
 	line-height: 36px;
 	color: @light-font;
 	font-size: 12px;
 	font-weight: bold;
 	text-shadow: none;
-	padding-left: 40px;
+	padding: 0px 45px 0px 40px;
 	text-align: left;
+	-webkit-hyphens: auto;
+	-webkit-overflow-wrap: break-word;
 }
 
 .menu li:hover {
@@ -386,6 +388,7 @@ aside.menu {
 	float: right;
 	border-radius: 10px;
 	line-height: 15px;
+	margin-right: -45px;
 	top: 9px;
 	right: 15px;
 	padding: 1px 5px;
