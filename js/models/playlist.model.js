@@ -13,8 +13,6 @@ var Playlist = Backbone.Model.extend({
 		return '#' + this.get('dom_id') + '-' + number;
 	},
 	element_for: function(number) {
-		console.log('returning element:');
-		console.log(this.selector_for(number));
 		return $(this.selector_for(number));
 	},
 	move_to: function (number) {
@@ -78,7 +76,6 @@ var Playlist = Backbone.Model.extend({
 				return false;
 			}
 		}
-		console.log(position);
 		var song = this.get('list').models[position];
 		media_center.play(song.get('file_url'));
 		this.set({current_song: song});

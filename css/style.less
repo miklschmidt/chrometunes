@@ -58,6 +58,8 @@ body {
 	background: url(/img/bg-noise.png);
 	text-align: center;
 	text-shadow: 0px -1px 1px #000;
+	padding-bottom: 25px;
+	padding-top: 100px;
 }
 
 #audio {
@@ -81,10 +83,10 @@ ul {
 		margin: 0;
 		-webkit-transition: all .5s linear;
 		.chrome {
-			color: @blue_dark;
+			color: @blue_light;
 		}
 		.tunes {
-			color: @pink_dark;
+			color: @pink_light;
 		}
 		&:hover {
 			text-shadow: -1px -1px 0px rgba(255,255,255,0.1), 1px 1px 0px rgba(0,0,0, 0.4);	
@@ -206,6 +208,7 @@ table {
 	font-size: 12px;
 	text-shadow: 1px 1px 1px rgba(0,0,0, 0.5);
 	border: 1px solid #232323;
+	border-radius: 0px 0px 4px 4px;
 	tr {
 		cursor: pointer;
 		border-collapse: separate;
@@ -215,9 +218,10 @@ table {
 		border-collapse: separate;
 	}
 	thead {
-		border-radius: 4px 4px;
+		border-radius: 4px 4px 0px 0px;
 		tr {
-			border-radius: 4px 4px;
+			border-radius: 4px 4px 0px 0px;
+			cursor: default;
 		}
 		th {
 			.dark_boxmodel;
@@ -232,6 +236,7 @@ table {
 		}
 	}
 	tbody {
+		border-radius: 0px 0px 4px 4px;
 		tr.odd td {
 			background: #fafafa;
 		}
@@ -250,18 +255,16 @@ table {
 			.pink_boxmodel;
 			color: #fff;
 		}
+		tr:last-child {
+			border-radius: 0px 0px 4px 4px;
+			td:last-child{
+				border-radius: 0px 0px 4px 0px;
+			}
+			td:first-child{
+				border-radius: 0px 0px 0px 4px;
+			}
+		}
 	}
-}
-
-output li {
-	cursor: pointer;
-	color: #fff;
-	font-size: 15px;
-	text-shadow: 1px 1px 1px rgba(0,0,0, 0.5);
-}
-
-output li a {
-	color: rgba(247, 85, 145, 1);
 }
 
 li:hover {

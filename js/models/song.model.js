@@ -26,21 +26,26 @@ var Song = Backbone.Model.extend({
 	},
 
 	calc_duration: function () {
-		//This is an extremely horrible way to do this. But it works for now..
+		//This is a horrible way to do this. But it works for now..
 		var audio = new Audio();
 		audio.src = this.get('file_url');
 		var self = this;
 		setTimeout(function() {
-			console.log(audio.duration);
-			var duration = audio.duration;
-			delete(audio);
-			console.log(duration);
-			duration = (new Date).clearTime()
-	          .addSeconds(duration)
-	          .toString('mm:ss');  
-	        self.set({duration: duration});
-	        self.trigger('file_parsed');
-		}, 2000);
+			function get_duration() {
+				var duration = audio.duration;
+				duration = (new Date).clearTime()
+		          .addSeconds(duration)
+		          .toString('mm:ss');  
+		        if (isNaN(parseInt(duration, 10))) {
+		        	setTimeout(get_duration, 100);
+		        } else {
+					delete(audio);
+			        self.set({duration: duration});
+			        self.trigger('file_parsed');
+		        }
+			}
+			get_duration();
+		}, 100);
 	},
 
 	parse_file: function() {

@@ -128,8 +128,9 @@ var media_center = {
 		var me = this;
 		audio = $("#audio")[0];
 		$("#audio").bind('ended', function() {
-			console.log('playback of current song ended, moving on to the next in the playlist');
-			me.next();
+			var number = me.next();
+			var song = me.playlist(me.current_playlist).get('current_song');
+			console.log('playback of current song ended, moving on to "' + song.get('artist') + ' - ' + song.get('title') + '"');
 		}).bind('timeupdate', function(e) {
 			var time = e.target.currentTime;
 			var duration = e.target.duration;
@@ -221,8 +222,8 @@ var media_center = {
 		} else {
 			number = playlist.next();
 		}
-		console.log(playlist.element_for(number));
 		playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
+		return number;
 	},
 
 	prev: function() {
@@ -235,6 +236,7 @@ var media_center = {
 			number = playlist.prev();
 		}
 		playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
+		return number;
 	},
 
 	load_files: function(files, callback) {
@@ -340,8 +342,6 @@ var media_center = {
 		for(artist in artists) {
 			var $content = $('#main_menu .content.artists');
 			var songs = artists[artist];
-			console.log('songs by:' + artist);
-			console.log(songs);
 			var random_id = Math.floor(Math.random() * 1000);
 			var new_playlist = me.playlist(random_id, artist);
 			for (index in songs) {
