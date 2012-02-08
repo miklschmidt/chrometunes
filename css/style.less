@@ -3,6 +3,7 @@
 @black_border_dark: #4b4952;
 @black_border_light: #f8f8f8;
 @black_dark: #dadadb;
+@black_darker: #c8c8c8;
 @black_light: #eaeaea;
 @black_socket: #c4c4c4;
 @blue_border_dark: #00486d;
@@ -35,13 +36,13 @@
 }
 
 .text_inset_light {
-	text-shadow: 0px -1px 1px rgba(0,0,0,0.5), 0px 1px 1px rgba(255,255,255,0.9);
+	text-shadow: 0px 1px 1px rgba(255,255,255,0.9);
 }
 
 /* Gradients */
 
 .dark_gradient {
-	background-color: #2C2C2C;
+	background-color: @black_dark;
 	background-image: -moz-linear-gradient(top, @black_light, @black_dark);
 	background-image: -ms-linear-gradient(top, @black_light, @black_dark);
 	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@black_light), to(@black_dark));
@@ -55,6 +56,19 @@
 	.dark_gradient;
 	border-top: 1px solid @black_border_light;
 	border-bottom: 1px solid @black_border_dark;
+}
+
+.dark_boxmodel_high {
+	border-top: 1px solid @black_border_light;
+	border-bottom: 1px solid @black_border_dark;
+	background-color: @black_dark;
+	background-image: -moz-linear-gradient(top, @black_light, @black_darker);
+	background-image: -ms-linear-gradient(top, @black_light, @black_darker);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@black_light), to(@black_darker));
+	background-image: -webkit-linear-gradient(top, @black_light, @black_darker);
+	background-image: -o-linear-gradient(top, @black_light, @black_darker);
+	background-image: linear-gradient(top, @black_light, @black_darker);
+	background-repeat: repeat-x;
 }
 
 .blue_gradient {
@@ -81,6 +95,12 @@
 .grey_boxmodel {
 	.grey_gradient;
 	border-top: 1px solid @grey_border_light;
+	border-bottom: 5px solid @grey_border_dark;
+}
+
+.grey_boxmodel_progress {
+	.grey_gradient;
+	border-top: 1px solid @grey_border_light;
 	border-bottom: 1px solid @grey_border_dark;
 }
 
@@ -91,11 +111,11 @@ body {
 	margin: 0;
 	/*background: -webkit-gradient(linear, 100% 0%, 0% 0%, from(#E8EAEC), to(#eaecee), color-stop(.5,#F4F4F5));*/
 	//background: url(/img/bg-noise.png);
-	background: url(/img/concrete_background.jpg) repeat top center;
+	background: url(/img/bg-pattern.png) repeat-y top center #292b2f;
 	text-align: center;
 	text-shadow: 0px -1px 1px #000;
 	padding-bottom: 25px;
-	padding-top: 100px;
+	padding-top: 115px;
 	height: 100%;
 }
 
@@ -110,10 +130,24 @@ ul {
 
 .navbar {
 
+	.navbar-inner {
+		.dark_boxmodel;
+	}
+	.navbar-inner.bottom {
+		border-bottom-width: 1px;
+		border-bottom-color: rgba(255,255,255,0.8);
+		box-shadow: none;
+	}
+	.navbar-edge {
+		background: #7c7c7c;
+		height: 5px;
+		width: 100%;
+	}
+
 	.brand {
 		font-weight: bold;
-		text-shadow: 1px 1px 0px rgba(255,255,255,0.1), -1px -1px 0px rgba(0,0,0, 0.4);
-		color: @black_dark;
+		.text_inset_light;
+		color: @main_font;
 		line-height: 40px;
 		height: 40px;
 		padding: 0;
@@ -132,13 +166,6 @@ ul {
 			text-shadow: -1px -1px 0px rgba(255,255,255,0.1), 1px 1px 0px rgba(0,0,0, 0.4);	
 		}
 	}
-
-	.container:first-child {
-		border-bottom: 1px solid rgba(0,0,0, 0.2);
-	}
-	.container:last-child {
-		border-top: 1px solid rgba(255,255,255, 0.1);
-	}
 	.nav-collapse {
 
 	}
@@ -148,7 +175,8 @@ ul {
 		text-align: center;
 		font-size: 16px;
 		margin-left: 150px;
-		color: #fff;
+		.text_inset_light;
+		color: @main_font;
 	}
 	#current_duration {
 		height: 40px;
@@ -156,14 +184,15 @@ ul {
 		text-align: center;
 		font-size: 12px;
 		float: right;
-		color: #fff;
+		.text_inset_light;
+		color: @main_font;
 	}
 	// AUDIO PLAYER INTERFACE
 	#top_player {
 		height: 35px;
 		margin-top: 5px;
 		#controls {
-			border-right: 1px solid #262626;
+			border-right: 1px solid @black_socket;
 			float: left;
 			height: 30px;
 			width: 80px;
@@ -181,8 +210,8 @@ ul {
 		#progress {
 			height: 30px;
 			padding: 0px 10px;
-			border-left: 1px solid #2f2f2f;
-			border-right: 1px solid #262626;
+			border-left: 1px solid @black_border_light;
+			border-right: 1px solid @black_socket;
 			margin: 0px 61px 0px 81px;
 			#progress_wrapper {
 				width: 100%;
@@ -192,33 +221,34 @@ ul {
 				position: relative;
 			}
 			#progress_background {
-				height: 8px;
+				height: 10px;
 				position: absolute;
-				top: 4px;
+				top: 2px;
 				left: 0;
 				width: 100%;
 				cursor: pointer;
 				overflow: hidden;
-				background: #1c1c1c;
-				border-radius: 3px;
-				border-top: 1px solid #222;
-				box-shadow: 0px 1px 0px rgba(255,255,255,0.1), inset;
+				background: #666;
+				border-radius: 5px;
+				border-top: 1px solid @black_socket;
+				box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.2), inset 0px 1px 2px rgba(0,0,0,0.5)
 			}
 			#progress_bar {
-				height: 6px;
+				height: 4px;
 				position: absolute;
 				top: 5px;
-				left: 1px;
 				width: 0%;
 				cursor: pointer;
 				overflow: hidden;
 				background: url(/img/progress2.png);
-				border-radius: 2px;
-				box-shadow: 0px 0px 6px 1px rgba(172, 0, 63, 0.8);
+				border-radius: 3px;
+				//box-shadow: 0px 0px 6px 1px rgba(172, 0, 63, 0.8);
+				.grey_boxmodel_progress;
+				margin: 0px 2px;
 			}
 		}
 		#extras {
-			border-left: 1px solid #2f2f2f;
+			border-left: 1px solid @black_border_light;
 			float: right;
 			height: 30px;
 			width: 60px;
@@ -249,15 +279,18 @@ table {
 	text-shadow: 1px 1px 1px rgba(0,0,0, 0.5);
 	background-image: -webkit-linear-gradient(left, #33333c, #474750, #303036);
 	//background: #474750;
-	box-shadow: inset 2px 0px 2px 1px rgba(0, 0, 0, 0.4), 1px 1px 1px rgba(255,255,255,0.2);
+	box-shadow: inset 2px 0px 2px 1px rgba(0, 0, 0, 0.4), 1px 1px 1px rgba(255,255,255,0.1);
+	-webkit-box-sizing: border-box;
 	.text_inset_dark;
 	tr {
 		cursor: pointer;
 		border-collapse: separate;
+		-webkit-box-sizing: border-box;
 	}
 	td,th {
 		padding: 5px 10px;
 		border-collapse: separate;
+		-webkit-box-sizing: border-box;
 	}
 	thead {
 		border-radius: 6px 6px 0px 0px;
@@ -269,7 +302,8 @@ table {
 			.dark_boxmodel;
 			color: @main_font;
 			height: 28px;
-			.text_inset_light
+			font-weight: normal;
+			.text_inset_light;
 		}
 		th:first-child {
 			border-radius: 6px 0px 0px 0px;
@@ -286,6 +320,7 @@ table {
 		td {
 			border-top: 1px solid #4a4a53;
 			border-bottom: 1px solid #1d1d25;
+			-webkit-box-sizing: border-box;
 		}
 		tr.playing td, tr.playing:hover td {
 			.blue_boxmodel;
@@ -343,6 +378,7 @@ aside.menu {
 }
 
 .menu .header {
+	-webkit-box-sizing: border-box;
 	.dark_boxmodel;
 	height: 36px;
 	font-size: 15px;
@@ -353,7 +389,7 @@ aside.menu {
 	cursor: pointer;
 	letter-spacing: 1;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: normal;
 	.text_inset_light;
 }
 
@@ -382,7 +418,6 @@ aside.menu {
 	padding: 1px 5px;
 	position: relative;
 	font-size: 10px;
-	font-weight: bold;
 	min-width: 15px;
 	border-bottom: 1px solid @black_border_light;
 	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.20);
@@ -391,6 +426,7 @@ aside.menu {
 
 .menu .header:hover {
 	.grey_boxmodel;
+	box-shadow: 0px -2px 5px rgba(0,0,0,0.5);
 	color: #fff;
 	.text_inset_medium;
 }
@@ -419,8 +455,8 @@ aside.menu {
 	box-shadow: inset 0px -2px 8px 2px rgba(0, 0, 0, 0.8);
 	border-bottom: #33373d;
 	margin: 0px 2px;
-	border-left: 1px solid #616067;
-	border-right: 1px solid #616067;
+	border-left: 1px solid rgba(255,255,255,0.1);
+	border-right: 1px solid rgba(255,255,255,0.1);
 }
 
 .menu span.count {
