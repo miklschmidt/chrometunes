@@ -260,6 +260,7 @@ var media_center = {
 					}, me.on_error);
 				}
 			}
+			//This should not be the way to add new files.. Everything is reinitialized.. stupid..
 			me.all_files();
 			if (typeof(callback) == 'function') {
 				callback();
@@ -535,7 +536,7 @@ var media_center = {
 		new_playlist.bind('change:current_song', function(playlist){
 			var song = playlist.get('current_song');
 			$('#currently_playing').text(song.get('artist') + ' - ' + song.get('title'));
-			$('head title').text('Mediaplayer v0.1.0: ' + song.get('artist') + ' - ' + song.get('title'));
+			$('head title').text('Mediaplayer v0.1.1: ' + song.get('artist') + ' - ' + song.get('title'));
 		});
 		this._playlists[id] = new_playlist;
 		return new_playlist;
