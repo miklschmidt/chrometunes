@@ -8,6 +8,35 @@
 String.prototype.capitalize = function(){
    return this.replace( /(^|\s|\()([a-z])/g , function(m,p1,p2){ return p1+p2.toUpperCase(); } );
 };
+
+//Notification support
+window.allow_notifications = false;
+function check_notification_permissions() {
+	if (window.webkitNotifications.checkPermission() == 0) {
+		window.allow_notifications = true;
+	}
+}
+
+window.webkitNotifications.requestPermission(function() { check_notification_permissions(); });
+check_notification_permissions();
+
+function show_notification (text, title) {
+	if (!title) {
+		title = 'Now playing';
+	}
+	window.webkitNotifications.requestPermission(function() { check_notification_permissions(); });
+	if (window.allow_notifications) {
+		var n = window.webkitNotifications.createNotification(
+			'', 
+			title, 
+			text
+		);
+
+		n.show();
+		setTimeout(function(){n.cancel()}, 5000);
+	}
+}
+
 /*var context = new window.webkitAudioContext();
 var analyser = context.createAnalyser();
 analyser.fftSize = 4096;

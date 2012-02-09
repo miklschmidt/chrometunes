@@ -77,6 +77,7 @@ var Playlist = Backbone.Model.extend({
 			}
 		}
 		var song = this.get('list').models[position];
+		show_notification(song.get('artist') + ' - ' + song.get('title'));
 		media_center.play(song.get('file_url'));
 		this.set({current_song: song});
 		this.element_for(position).addClass('playing').siblings().removeClass('playing');
