@@ -10,6 +10,9 @@ var PlaylistMenuEntryView = Backbone.View.extend({
 	initialize: function() {
 		this.model.bind('change', function() {
 			this.render();
+		}, this);
+		this.model.bind('destroy', function() {
+			this.remove();
 		}, this)
 	},
 

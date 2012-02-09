@@ -14,6 +14,8 @@ analyser.fftSize = 4096;
 var gain = context.createGainNode();
 var audio = $('#audio')[0];
 var source = null;*/
+var debug_files = [];
+var debug_songs = [];
 
 var media_center = {
 
@@ -74,7 +76,7 @@ var media_center = {
 			$.extend(this.options, options);
 		}
 		this.fix_buttons();
-		//Initialize 500 megs of space.
+		//Initialize 1gb of space.
 		window.webkitStorageInfo.requestQuota(PERSISTENT, 1000 * 1024 * 1024, function(grantedBytes) {
 			filer.init({persistent: true, size: grantedBytes}, function(fs) { 
 				//success
@@ -104,9 +106,10 @@ var media_center = {
 	setup_drop_handlers: function () {
 		var me = this;
 		var $drop = $('#drop_area');
+		var body = document.querySelector('body');
 		var drop = $drop[0];
 		var drop_enter = function(e) {
-			$drop.text('Gimme gimme!');
+			$drop.text('GIMME GIMME!');
 			e.stopPropagation();
 			e.preventDefault();
 		}
@@ -115,11 +118,12 @@ var media_center = {
 		drop.addEventListener('dragover', drop_enter, false);
 		drop.addEventListener('drop', function(e){
 			var files = e.dataTransfer.files;
-			$drop.text('Thank you!');
+			//console.log(e.dataTransfer);
+			$drop.text('THANK YOU!');
 			e.stopPropagation();
 			e.preventDefault();
 			me.load_files(files, function(){
-				$drop.text('Drop files here!');
+				$drop.text('DROP FILES HERE!');
 			});
 		}, false);
 	},
@@ -246,9 +250,15 @@ var media_center = {
 		filer.cd('/storage', function(entries){
 			for (var i = 0, file; file = files[i]; ++i) {
 				//TODO: Implement support for directories. (ie. webkitRelativePath)
-				filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
-					//success
-				}, me.on_error);
+				//console.log(file);
+				//check if it's a directory..
+				if (file.isDirectory || file.size < 1000 || file.fileSize < 1000) {
+					alert('Directories are not yet supported');
+				} else {
+					filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
+						//success
+					}, me.on_error);
+				}
 			}
 			me.all_files();
 			if (typeof(callback) == 'function') {
@@ -265,20 +275,44 @@ var media_center = {
 	all_files: function (callback) {
 		var filer = this.filer;
 		var me = this;
+		//Reset playlists and table (this deletes all models and empties collections.. very desctructive indeed)
+		me.reset_playlists();
+		$('#list tbody tr').remove();
+
 		filer.ls('/storage', function(entries) {
 			var playlist = me.playlist('all');
 			playlist.clear();
 			//playlist.bind('play');
 			var parse_count = 0;
+			//This fails if we somehow managed to write a directory as a file.
+			var i = 0;
 			for (var x = 0; f = entries[x]; ++x) {
-				var song = new Song({file_url: f.toURL()});
-				song.bind('file_parsed', function(){
-					playlist.push(this);
-					parse_count++;
-					if (parse_count >= (entries.length - 2)) {
-						playlist.trigger('populated');
-					}
-				});
+				if (!f.isDirectory) {
+					// console.log('-------------------');
+					// console.log(f.toURL());
+					// console.log(f.isDirectory);
+					// console.log(f);
+					// console.log('-------------------');
+					i++;
+					var song = new Song({file_url: f.toURL()});
+					debug_files.push(f.toURL());
+					// console.log('i:' + i + ' - file: ' + f.toURL());
+					song.bind('file_parsed', function(){
+						try {
+							playlist.push(this);
+							debug_songs.push(this.get('file_url'));
+							parse_count++;
+							// console.log('parse_count (' + this.get('file_url') + '):' + parse_count);
+							if (parse_count >= i) {
+								playlist.trigger('populated');
+							}
+						} catch (Error) {
+							console.log('The following file is already in the global playlist.');
+							console.log(this)
+
+						}
+					});
+				}
 			}
 			//Make a list of songs
 			playlist.bind('populated', function() {
@@ -320,95 +354,113 @@ var media_center = {
 		var count = 0;
 		var songs = null;
 
-		//Add standard playlist (all) to the playlist menu.
-		$header = $('#main_menu .header.playlists');
-		$header.after('<div class="content playlists"><ul></ul></div>');
-		var $content = $('#main_menu .content.playlists');
-		var playlist_view = new PlaylistMenuEntryView({
-			model: playlist, 
-			id: playlist.get('dom_id')
-		});
-		playlist_view.render();
-		
-		$content.find('ul').append(playlist_view.el);
-		$header.find('span.count').text('1');
+		try {
+			//Cleanup menu
+			$('#main_menu .content').remove();
+			$('#main_menu .header').removeClass('active');
 
-		//Make lists grouped by artist names:
-		songs = playlist.get('list');
-		var artists = songs.groupBy(function(song){ return song.get('artist'); });
-		count = 0;
-		$header = $('#main_menu .header.artists');
-		$header.after('<div class="content artists"><ul></ul></div>');
-		for(artist in artists) {
-			var $content = $('#main_menu .content.artists');
-			var songs = artists[artist];
-			var random_id = Math.floor(Math.random() * 1000);
-			var new_playlist = me.playlist(random_id, artist);
-			for (index in songs) {
-				var song = songs[index];
-				new_playlist.push(song);
-			}
+			//Add standard playlist (all) to the playlist menu.
+			$header = $('#main_menu .header.playlists');
+			$header.after('<div class="content playlists"><ul></ul></div>');
+			var $content = $('#main_menu .content.playlists');
 			var playlist_view = new PlaylistMenuEntryView({
-				model: new_playlist, 
-				id: new_playlist.get('dom_id')
+				model: playlist, 
+				id: playlist.get('dom_id')
 			});
 			playlist_view.render();
 			
 			$content.find('ul').append(playlist_view.el);
-			count++;
-		}
-		$header.find('span.count').text(count);
-		//Make lists grouped by album names:
-		songs = playlist.get('list');
-		var albums = songs.groupBy(function(song){ return song.get('album'); });
-		count = 0;
-		$header = $('#main_menu .header.albums');
-		$header.after('<div class="content albums"><ul></ul></div>');
-		for(album in albums) {
-			var $content = $('#main_menu .content.albums');
-			var songs = albums[album];
-			var random_id = Math.floor(Math.random() * 1000);
-			var new_playlist = me.playlist(random_id, album);
-			for (index in songs) {
-				var song = songs[index];
-				new_playlist.push(song);
-			}
-			var playlist_view = new PlaylistMenuEntryView({
-				model: new_playlist, 
-				id: new_playlist.get('dom_id')
-			});
-			playlist_view.render();
-			
-			$content.find('ul').append(playlist_view.el);
-			count++;
-		}
-		$header.find('span.count').text(count);
+			$header.find('span.count').text('1');
 
-		//Make lists grouped by genre:
-		songs = playlist.get('list');
-		var genres = songs.groupBy(function(song){ return song.get('genre'); });
-		count = 0;
-		$header = $('#main_menu .header.genres');
-		$header.after('<div class="content genres"><ul></ul></div>');
-		for(genre in genres) {
-			var $content = $('#main_menu .content.genres');
-			var songs = genres[genre];
-			var random_id = Math.floor(Math.random() * 1000);
-			var new_playlist = me.playlist(random_id, genre);
-			for (index in songs) {
-				var song = songs[index];
-				new_playlist.push(song);
+			//Make lists grouped by artist names:
+			songs = playlist.get('list');
+			var artists = songs.groupBy(function(song){ return song.get('artist'); });
+			count = 0;
+			$header = $('#main_menu .header.artists');
+			$header.after('<div class="content artists"><ul></ul></div>');
+			for(artist in artists) {
+				var $content = $('#main_menu .content.artists');
+				var songs = artists[artist];
+				var random_id = Math.floor(Math.random() * 1000);
+				var new_playlist = me.playlist(random_id, artist);
+				for (index in songs) {
+					var song = songs[index];
+					new_playlist.push(song);
+				}
+				var playlist_view = new PlaylistMenuEntryView({
+					model: new_playlist, 
+					id: new_playlist.get('dom_id')
+				});
+				playlist_view.render();
+				
+				$content.find('ul').append(playlist_view.el);
+				count++;
 			}
-			var playlist_view = new PlaylistMenuEntryView({
-				model: new_playlist, 
-				id: new_playlist.get('dom_id')
-			});
-			playlist_view.render();
-			
-			$content.find('ul').append(playlist_view.el);
-			count++;
-		}
-		$header.find('span.count').text(count);
+			$header.find('span.count').text(count);
+			//Make lists grouped by album names:
+			songs = playlist.get('list');
+			var albums = songs.groupBy(function(song){ return song.get('album'); });
+			count = 0;
+			$header = $('#main_menu .header.albums');
+			$header.after('<div class="content albums"><ul></ul></div>');
+			for(album in albums) {
+				var $content = $('#main_menu .content.albums');
+				var songs = albums[album];
+				var random_id = Math.floor(Math.random() * 1000);
+				var new_playlist = me.playlist(random_id, album);
+				for (index in songs) {
+					var song = songs[index];
+					new_playlist.push(song);
+				}
+				var playlist_view = new PlaylistMenuEntryView({
+					model: new_playlist, 
+					id: new_playlist.get('dom_id')
+				});
+				playlist_view.render();
+				
+				$content.find('ul').append(playlist_view.el);
+				count++;
+			}
+			$header.find('span.count').text(count);
+
+			//Make lists grouped by genre:
+			songs = playlist.get('list');
+			var genres = songs.groupBy(function(song){ return song.get('genre'); });
+			count = 0;
+			$header = $('#main_menu .header.genres');
+			$header.after('<div class="content genres"><ul></ul></div>');
+			for(genre in genres) {
+				var $content = $('#main_menu .content.genres');
+				var songs = genres[genre];
+				var random_id = Math.floor(Math.random() * 1000);
+				var new_playlist = me.playlist(random_id, genre);
+				for (index in songs) {
+					var song = songs[index];
+					new_playlist.push(song);
+				}
+				var playlist_view = new PlaylistMenuEntryView({
+					model: new_playlist, 
+					id: new_playlist.get('dom_id')
+				});
+				playlist_view.render();
+				
+				$content.find('ul').append(playlist_view.el);
+				count++;
+			}
+			$header.find('span.count').text(count);
+		} catch (Error) {
+			console.log('ERROR: Possibly trying to add a file to a collection, while it is already there');
+			console.log(Error);
+		} //finally {
+		// 	//Cleanup menu
+		// 	$('#main_menu .content').remove();
+		// 	$('#main_menu .header').removeClass('active');
+		// 	//Cleanup list
+		// 	$('#list tr').remove();
+		// 	//initiate another go
+		// 	console.log('Initiating a timeout for another go 5 seconds from now');
+		// 	setTimeout(function(){console.log('here we go again'); me.all_files();}, 5000);
+		// }
 
 		//Setup events
 		$('#main_menu .content').hide();
@@ -487,6 +539,20 @@ var media_center = {
 		});
 		this._playlists[id] = new_playlist;
 		return new_playlist;
+	},
+
+	reset_playlists: function() {
+		// Most destructive function ever.. This is ridiculous, and is gonna be handled 
+		// very differently when models and collections are persisted over IndexedDB and properly implemented.
+		var me = this;
+		var models;
+		for (id in me._playlists) {
+			models = me._playlists[id].reset_collection();
+			for (model in models) {
+				models[model].destroy();
+			}
+			me._playlists[id].destroy();
+		}	
 	},
 
 	set_playlist: function(playlist) {

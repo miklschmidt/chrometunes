@@ -9,7 +9,10 @@ var SongListEntryView = Backbone.View.extend({
 	initialize: function() {
 		this.model.bind('change', function() {
 			this.render();
-		}, this)
+		}, this);
+		this.model.bind('destroy', function() {
+			this.remove();
+		}, this);
 	},
 
 	play: function(e) {
@@ -33,6 +36,7 @@ var SongListEntryView = Backbone.View.extend({
 		$f.data('song').get_file_entry(function(file_entry){
 			filer.rm(file_entry, function() {
 				$f.remove();
+				song.destroy();
 			});
 		});
 	},

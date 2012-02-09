@@ -80,7 +80,12 @@ var Playlist = Backbone.Model.extend({
 		media_center.play(song.get('file_url'));
 		this.set({current_song: song});
 		this.element_for(position).addClass('playing').siblings().removeClass('playing');
-	}
+	},
+	reset_collection: function() {
+		var models = this.all;
+		this.get('list').reset();
+		return (models);
+	},
 });
 
 var PlaylistCollection = Backbone.Collection.extend({
