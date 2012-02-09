@@ -2,7 +2,7 @@
  *	@author Mikkel Schmidt (mikkel.schmidt@gmail.com)
  *	@dependencies jQuery.js, Filer.js, id3v2.js
  *	
- *	TODO: Make files downloadable (ie. transferable to user defined folder.. dno how yet);
+ *	TODO: Make files downloadable (ie. transferable to user defined folder.. Zip it, write the zip to filesystem and redirect);
  */
 
 String.prototype.capitalize = function(){
@@ -513,29 +513,7 @@ var media_center = {
 		$("#audio").attr('src', file_url);
 		$("#audio")[0].play();
 	},
-
-	parse_id3: function (file_entry, callback) {
-		//TODO: Use FileSystem instead of local storage.
-		if (localStorage[file_entry.fullPath]) {
-			//Return cached ID3 tags.
-			console.log('id3 info allready in localstorage. returning.');
-			return callback(JSON.parse(localStorage[file_entry.fullPath]));
-		} 
-		file_entry.file(function(file) {
-			//Generate and cache ID3 tags.
-			ID3v2.parseFile(file,function(tags){
-				localStorage[file_entry.fullPath] = JSON.stringify({
-					Title: tags.Title,
-					Artist: tags.Artist,
-					Album: tags.Album,
-					Genre: tags.Genre
-				});
-				callback(tags);
-			});
-		});
-
-	},
-
+	
 	delete_library: function () {
 		var filer = this.filer;
 		var me = this;
