@@ -105,15 +105,7 @@ var media_center = {
 			$.extend(this.options, options);
 		}
 		this.fix_buttons();
-		//Initialize 1gb of space.
-		window.webkitStorageInfo.requestQuota(PERSISTENT, 1000 * 1024 * 1024, function(grantedBytes) {
-			filer.init({persistent: true, size: grantedBytes}, function(fs) { 
-				//success
-				filer.mkdir('/storage', true, function(){ 
-					console.log('directory "storage" was created'); 
-				}, function () {
-					console.log('directory "storage" already exists');		
-				});
+
 				me.all_files(function(){
 					var playlist = me.playlist('all');
 					playlist.element_for(playlist.rewind()).addClass('playing').siblings().removeClass('playing');
@@ -122,9 +114,8 @@ var media_center = {
 					$('#main_menu .header.playlists').addClass('active');
 					$('#main_menu .content.playlists').show().find('#all').addClass('active');
 				});
-				this.filer = filer;
-			}, me.on_error);
-		}, me.on_error);
+
+
 
 		this.setup_drop_handlers();
 		this.setup_audio_element();
@@ -272,29 +263,7 @@ var media_center = {
 		return number;
 	},
 
-	load_files: function(files, callback) {
-		var filer = this.filer;
-		var me = this;
-		var fsURL = filer.fs.root.toURL()
-		filer.cd('/storage', function(entries){
-			for (var i = 0, file; file = files[i]; ++i) {
-				//TODO: Implement support for directories. (ie. webkitRelativePath)
-				//console.log(file);
-				//check if it's a directory..
-				if (file.isDirectory || file.size < 1000 || file.fileSize < 1000) {
-					alert('Directories are not yet supported');
-				} else {
-					filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
-						//success
-					}, me.on_error);
-				}
-			}
-			//This should not be the way to add new files.. Everything is reinitialized.. stupid..
-			me.all_files();
-			if (typeof(callback) == 'function') {
-				callback();
-			}
-		}, me.on_error);
+	load_files: 
 	},
 
 	on_error: function (e) {
@@ -318,21 +287,14 @@ var media_center = {
 			var i = 0;
 			for (var x = 0; f = entries[x]; ++x) {
 				if (!f.isDirectory) {
-					// console.log('-------------------');
-					// console.log(f.toURL());
-					// console.log(f.isDirectory);
-					// console.log(f);
-					// console.log('-------------------');
 					i++;
 					var song = new Song({file_url: f.toURL()});
 					debug_files.push(f.toURL());
-					// console.log('i:' + i + ' - file: ' + f.toURL());
 					song.bind('file_parsed', function(){
 						try {
 							playlist.push(this);
 							debug_songs.push(this.get('file_url'));
 							parse_count++;
-							// console.log('parse_count (' + this.get('file_url') + '):' + parse_count);
 							if (parse_count >= i) {
 								playlist.trigger('populated');
 							}
@@ -512,15 +474,6 @@ var media_center = {
 	play: function(file_url) {
 		$("#audio").attr('src', file_url);
 		$("#audio")[0].play();
-	},
-	
-	delete_library: function () {
-		var filer = this.filer;
-		var me = this;
-
-		filer.rm('/storage', function(){
-			console.log('successfully deleted storage folder');
-		}, me.on_error);
 	},
 
 	_playlists: {},

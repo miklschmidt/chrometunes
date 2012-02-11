@@ -1,4 +1,29 @@
+var SongDB = {
+    id:"song_db",
+    description:"Database for the songs",
+    migrations:[
+        {
+            version: 1,
+            migrate: function (transaction, next) {
+                var store = transaction.db.createObjectStore("songs");
+                store.createIndex("artist_idx", "artist", {
+                    unique:false
+                });
+                store.createIndex("title_idx", "title", {
+                    unique:false
+                });
+                store.createIndex("album_idx", "album", {
+                    unique:false
+                });
+                next();
+            }
+        }
+    ]
+};
+
 var Song = Backbone.Model.extend({
+	database: SongDB,
+	storeName: 'songs',
 	defaults: {
 		file_url: null,
 		album: "Unknown Album",
@@ -122,9 +147,11 @@ var Song = Backbone.Model.extend({
 });
 
 var SongCollection = Backbone.Collection.extend({
+	database: SongDB,
+	storeName: 'songs',
 	model: Song,
 	comparator: function (song) {
-		//Convert track_number to hex string
+		//pad tracknumber for comparison.
 		var track = song.get('track_number').replace(/[^0-9.]/g, "");
 		track = parseInt(track, 10);
 		function pad(number, length) {

@@ -1,4 +1,26 @@
+var PlaylistDB = {
+    id:"playlist_db",
+    description:"Database for playlists",
+    migrations:[
+        {
+            version: 1,
+            migrate: function (transaction, next) {
+                var store = transaction.db.createObjectStore("playlists");
+                store.createIndex("name_idx", "name", {
+                    unique:false
+                });
+                store.createIndex("dom_id_idx", "dom_id", {
+                    unique:true
+                });
+                next();
+            }
+        }
+    ]
+};
+
 var Playlist = Backbone.Model.extend({
+	database: PlaylistDB,
+	storeName: "playlists",
 	defaults: {
 		name: 'Unnamed Playlist',
 		current_position: 0,
@@ -90,5 +112,10 @@ var Playlist = Backbone.Model.extend({
 });
 
 var PlaylistCollection = Backbone.Collection.extend({
-	model: Playlist
+	database: PlaylistDB,
+	storeName: "playlists",
+	model: Playlist,
+	comparator: function () {
+		return this.get('name');
+	}
 });
