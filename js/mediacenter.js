@@ -9,6 +9,8 @@ String.prototype.capitalize = function(){
    return this.replace( /(^|\s|\()([a-z])/g , function(m,p1,p2){ return p1+p2.toUpperCase(); } );
 };
 
+var current_notification = null;
+
 //Notification support
 window.allow_notifications = false;
 function check_notification_permissions() {
@@ -31,9 +33,15 @@ function show_notification (text, title) {
 			title, 
 			text
 		);
-
+		if (current_notification) {
+			current_notification.cancel();
+		}
+		current_notification = n;
 		n.show();
-		setTimeout(function(){n.cancel()}, 5000);
+		setTimeout(function(){
+			n.cancel();
+			current_notification = null;
+		}, 5000);
 	}
 }
 
@@ -58,41 +66,6 @@ var media_center = {
 	is_playing: false,
 	is_paused: true,
 	current_playlist: 'all',
-
-	fix_buttons: function () {
-		if (this.options.repeat) {
-			$('#extras .repeat_off').hide();
-			$('#extras .repeat_on').show();
-		} else {
-			$('#extras .repeat_off').show();
-			$('#extras .repeat_on').hide();
-		}
-		if (this.options.shuffle) {
-			$('#extras .shuffle_off').hide();
-			$('#extras .shuffle_on').show();
-		} else {
-			$('#extras .shuffle_off').show();
-			$('#extras .shuffle_on').hide();
-		}
-	},
-
-	shuffle: function (boolean) {
-		if (boolean) {
-			this.options.shuffle = true;
-		} else {
-			this.options.shuffle = false;
-		}
-		this.fix_buttons();
-	},
-
-	repeat: function (boolean) {
-		if (boolean) {
-			this.options.repeat = true;
-		} else {
-			this.options.repeat = false;
-		}
-		this.fix_buttons();
-	},
 
 	initialize: function (options) {
 
@@ -146,124 +119,6 @@ var media_center = {
 				$drop.text('DROP FILES HERE!');
 			});
 		}, false);
-	},
-
-	setup_audio_element: function() {
-		var me = this;
-		audio = $("#audio")[0];
-		$("#audio").bind('ended', function() {
-			var number = me.next();
-			var song = me.playlist(me.current_playlist).get('current_song');
-			console.log('playback of current song ended, moving on to "' + song.get('artist') + ' - ' + song.get('title') + '"');
-		}).bind('timeupdate', function(e) {
-			var time = e.target.currentTime;
-			var duration = e.target.duration;
-			var progress = time / duration * 100;
-			$("#progress_bar").css('width', progress + '%');
-			duration = me.playlist('all').get('current_song').get('duration'); 
-			time = (new Date).clearTime()
-	          .addSeconds(time)
-	          .toString('mm:ss');
-	        $("#current_duration").text(time + ' / ' + duration);  
-		}).bind('playing', function(e) {
-			//We started playing, fix buttons.
-			me.is_paused = false;
-			me.is_playing = true;
-			$('#controls .play').hide();
-			$('#controls .pause').show();
-		}).bind('pause', function(e) {
-			//We stopped playing, fix buttons.
-			me.is_paused = true;
-			me.is_playing = false;
-			$('#controls .play').show();
-			$('#controls .pause').hide();
-		});
-		$('#progress_background, #progress_bar').click(function(e) {
-			if (audio.readyState > 3) {
-				var bg = $('#progress_background');
-				var offset = bg.offset();
-				var value = e.pageX - offset.left;
-				var duration_factor = value/bg.width();
-				audio.currentTime = audio.duration * duration_factor;
-				if (audio.paused) {
-					audio.play();
-				}
-			}
-		});
-
-	},
-
-	setup_controls: function() {
-		var me = this;
-		$('#controls .play').click(function(e) {
-			e.preventDefault();
-			var audio = $('#audio')[0];
-			if (audio.src !== null && audio.src !== '') {
-				audio.play();
-			}
-		});
-		$('#controls .pause').click(function(e) {
-			e.preventDefault();
-			var audio = $('#audio')[0];
-			audio.pause();
-		});
-		$('#controls .next').click(function(e) {
-			e.preventDefault();
-			me.next();
-		});
-		$('#controls .prev').click(function(e) {
-			e.preventDefault();
-			me.prev();
-		});
-		$('#extras .shuffle_on').click(function(e) {
-			e.preventDefault();
-			me.options.shuffle = false;
-			me.fix_buttons();
-		});
-		$('#extras .shuffle_off').click(function(e) {
-			e.preventDefault();
-			me.options.shuffle = true;
-			me.fix_buttons();
-		});
-		$('#extras .repeat_on').click(function(e) {
-			e.preventDefault();
-			me.options.repeat = false;
-			me.fix_buttons();
-		});
-		$('#extras .repeat_off').click(function(e) {
-			e.preventDefault();
-			me.options.repeat = true;
-			me.fix_buttons();
-		});
-	},
-
-	next: function() {
-		var me = this;
-		var number;
-		var playlist = this.playlist(this.current_playlist);
-		if (me.options.shuffle === true) {
-			number = playlist.random();
-		} else {
-			number = playlist.next();
-		}
-		playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
-		return number;
-	},
-
-	prev: function() {
-		var me = this;
-		var number;
-		var playlist = this.playlist(this.current_playlist);
-		if (me.options.shuffle === true) {
-			number = playlist.random();
-		} else {
-			number = playlist.prev();
-		}
-		playlist.element_for(number).addClass('playing').siblings().removeClass('playing');
-		return number;
-	},
-
-	load_files: 
 	},
 
 	on_error: function (e) {
@@ -471,52 +326,4 @@ var media_center = {
 		}
 	},
 
-	play: function(file_url) {
-		$("#audio").attr('src', file_url);
-		$("#audio")[0].play();
-	},
-
-	_playlists: {},
-	playlist: function(id, name) {
-		//Check if the playlist id allready exist.
-		if (typeof(this._playlists[id]) != 'undefined' && this._playlists[id] !== null) {
-			return this._playlists[id];
-		}
-		//Nope it doesn't lets go ahead and return a brand new one.
-
-		if (typeof(name) == 'undefined'|| name === null) {
-			//Hack, shouldn't work like this..
-			name = 'All songs';
-		}
-
-		var new_playlist = new Playlist({
-			dom_id: id,
-			name: name
-		});
-		new_playlist.bind('change:current_song', function(playlist){
-			var song = playlist.get('current_song');
-			$('#currently_playing').text(song.get('artist') + ' - ' + song.get('title'));
-			$('head title').text('Mediaplayer v0.1.1: ' + song.get('artist') + ' - ' + song.get('title'));
-		});
-		this._playlists[id] = new_playlist;
-		return new_playlist;
-	},
-
-	reset_playlists: function() {
-		// Most destructive function ever.. This is ridiculous, and is gonna be handled 
-		// very differently when models and collections are persisted over IndexedDB and properly implemented.
-		var me = this;
-		var models;
-		for (id in me._playlists) {
-			models = me._playlists[id].reset_collection();
-			for (model in models) {
-				models[model].destroy();
-			}
-			me._playlists[id].destroy();
-		}	
-	},
-
-	set_playlist: function(playlist) {
-		this.current_playlist = playlist.get('dom_id');
-	}
 }

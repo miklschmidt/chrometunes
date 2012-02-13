@@ -41,7 +41,7 @@ var AudioPlayer = Backbone.Model.Extend({
 		if (this.get('shuffle') === true) {
 			number = playlist.random();
 		} else {
-			if (direction = 'next') {
+			if (direction == 'next') {
 				number = playlist.next();
 			} else {
 				number = playlist.prev();
@@ -62,7 +62,12 @@ var AudioPlayer = Backbone.Model.Extend({
 		this.navigate('prev');
 	},
 	play: function () {
-		this.get('element').play();	
+		var audio = this.get('element');
+		if (audio.src !== null && audio.src !== '') {
+			audio.play();
+		} else {
+			console.log('ERROR: Cannot play when no track is selected!');
+		}
 	},
 	pause: function () {
 		this.get('element').pause();
