@@ -116,7 +116,6 @@ var FileSystem = function () {
 
 		filer.rm('/storage', function(){
 			console.log('successfully deleted storage folder');
-			return true;
 		}, me.on_error);
 	};
 
