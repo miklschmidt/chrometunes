@@ -132,8 +132,8 @@ var AudioPlayerView = Backbone.View.extend({
 	},
 
 	render: function() {
-		$(this.el).html('
-				<div class="navbar-inner">
+		$(this.el).html(
+				'<div class="navbar-inner">
 					<div class="container-fluid">
 						<a class="brand" href="#">
 							<span class="chrome">Chrome</span><span class="tunes">Tunes</span> 

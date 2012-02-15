@@ -3,7 +3,7 @@ var player = null;
 var main_router = null;
 var fs = null;
 
-var MediaCenterRouter = Backbone.Router.Extend({
+var MediaCenterRouter = Backbone.Router.extend({
 	routes: {
 		"": "index"
 	},

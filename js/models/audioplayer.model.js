@@ -12,7 +12,7 @@ var AudioPlayerDB = {
     ]
 };
 
-var AudioPlayer = Backbone.Model.Extend({
+var AudioPlayer = Backbone.Model.extend({
 	database: AudioPlayerDB,
 	storeName: "audio_player",
 	defaults: {

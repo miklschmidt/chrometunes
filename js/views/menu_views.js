@@ -13,14 +13,14 @@ var MenuHeaderView = Backbone.View.extend({
 	}
 };
 
-var MenuContentView = Backbone.View.Extend({
+var MenuContentView = Backbone.View.extend({
 	tagName: 'div',
 	className: 'content',
 	events: {
 	}
 });
 
-var MenuContentEntryView = Backbone.View.Extend({
+var MenuContentEntryView = Backbone.View.extend({
 	tagName: 'li',
 	className: 'playlist',
 	events: {
