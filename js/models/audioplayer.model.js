@@ -57,7 +57,7 @@ var AudioPlayer = Backbone.Model.Extend({
 	},
 	next: function () {
 		this.navigate('next');
-	}
+	},
 	prev: function () {
 		this.navigate('prev');
 	},

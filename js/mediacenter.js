@@ -26,9 +26,9 @@ var MediaCenterRouter = Backbone.Router.Extend({
 	},
 });
 
-$(document).ready() {
+$(document).ready(function() {
 	fs = new FileSystem(1024, function() {
 		main_router = new MediaCenterRouter();
 		Backbone.history.start();
 	});
-};
+});

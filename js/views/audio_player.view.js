@@ -75,7 +75,7 @@ var AudioPlayerView = Backbone.View.extend({
 			attributes['repeat'] = false;
 		}
 		this.model.set(attributes);
-	}
+	},
 
 	seek: function (e) {
 		var audio = this.model.get('element');
@@ -112,7 +112,7 @@ var AudioPlayerView = Backbone.View.extend({
 			text = song.get('artist') + ' - ' + song.get('title');
 		}
 		this.$('#currently_playing').text(text);
-	}
+	},
 
 	update_buttons: function () {
 		if (this.model.get('repeat')) {
@@ -129,7 +129,7 @@ var AudioPlayerView = Backbone.View.extend({
 			this.$('#extras .shuffle_off').show();
 			this.$('#extras .shuffle_on').hide();
 		}
-	}
+	},
 
 	render: function() {
 		$(this.el).html('
