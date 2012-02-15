@@ -9,6 +9,7 @@ window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL ||
 </script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
+<script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
 <script src="js/libs/filer.js"></script>
 <script src="js/libs/underscore.js"></script>
 <script src="js/libs/json2.js"></script>
@@ -22,6 +23,7 @@ window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL ||
 <script src="js/views/song_list_entry.view.js"></script>
 <script src="js/views/playlist_menu_entry.view.js"></script>
 <script src="js/views/audio_player.view.js"></script>
+<script src="js/filesystem.js"></script>
 <script src="js/mediacenter.js"></script>
 <link rel='stylesheet' href='http://twitter.github.com/bootstrap/assets/css/bootstrap.css' type='text/css' media='screen' />
 <link rel='stylesheet' href='http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css' type='text/css' media='screen' />
@@ -30,10 +32,9 @@ window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL ||
 </head>
 <body>
 <script type="text/x-jquery-tmpl" id="tpl-audioplayer">
-<div class="navbar navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container-fluid">
-			<a class="brand" href="#"><span class="chrome">Chrome</span><span class="tunes">Tunes</span> <span class="version">v0.1.0</span></a>
+			<a class="brand" href="#"><span class="chrome">Chrome</span><span class="tunes">Tunes</span> <span class="version">${version}</span></a>
 			<div class='screen bg'>
 				<div id="current_duration">
 					0:00 / 0:00
@@ -72,7 +73,6 @@ window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL ||
 	</div>
 	<div class="navbar-edge">
 	</div>
-</div>
 </script>
 <div class="container-fluid">
 	<div class='row-fluid'>

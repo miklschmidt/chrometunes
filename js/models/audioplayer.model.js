@@ -4,8 +4,10 @@ var AudioPlayerDB = {
     migrations:[
         {
             version: 1,
-            migrate: function (transaction, next) {
-                var store = transaction.db.createObjectStore("audio_player");
+            migrate: function (db, versionRequest, next) {
+            	console.log(db);
+            	console.log(next);
+                var store = db.createObjectStore("audio_player");
                 next();
             }
         }

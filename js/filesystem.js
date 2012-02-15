@@ -3,8 +3,6 @@ var FileSystem = function (megabytes, callback) {
 	this.filer = new Filer();
 	var ACCEPTED_FILETYPES = ['audio/mp3', 'audio/ogg'];
 
-	this.initialize(megabytes, callback);
-
 	this.on_error = function () {
 		console.log('FileSystem Error: "' + e.name + '".');
 		console.log(e);
@@ -12,6 +10,8 @@ var FileSystem = function (megabytes, callback) {
 
 	this.initialize = function (megabytes, callback) {
 		//Initialize 1gb of space as default.
+		console.log('...initializing filesystem');
+		console.log(megabytes, callback);
 		var me = this;
 		if (!megabytes) {
 			megabytes = 1024;
@@ -25,10 +25,13 @@ var FileSystem = function (megabytes, callback) {
 						callback(grantedBytes);
 					}
 				}, function () {
-					console.log('directory "storage" already exists');		
+					console.log('directory "storage" already exists');
+					if (typeof(callback) == 'function') {
+						callback(grantedBytes);
+					}
 				});
-			}, media_center.on_error);
-		}, media_center.on_error);
+			}, me.on_error);
+		}, me.on_error);
 	};
 
 	this.get_all_songs = function (callback) {
@@ -129,5 +132,7 @@ var FileSystem = function (megabytes, callback) {
 			} 
 		);
 	}
-
+	console.log('initializing filesystem');
+	console.log(megabytes, callback);
+	this.initialize(megabytes, callback);
 };

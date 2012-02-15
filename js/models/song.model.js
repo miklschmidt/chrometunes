@@ -75,7 +75,6 @@ var Song = Backbone.Model.extend({
 
 	parse_file: function() {
 		if (this.get('file_parsed') === false) {
-			var filer = media_center.filer;
 			var url = this.get('file_url');
 			var song = this;
 
