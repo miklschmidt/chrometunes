@@ -1,7 +1,9 @@
-var FileSystem = function () {
+var FileSystem = function (megabytes, callback) {
 
-	var filer = new Filer();
+	this.filer = new Filer();
 	var ACCEPTED_FILETYPES = ['audio/mp3', 'audio/ogg'];
+
+	this.initialize(megabytes, callback);
 
 	this.on_error = function () {
 		console.log('FileSystem Error: "' + e.name + '".');
@@ -15,9 +17,9 @@ var FileSystem = function () {
 			megabytes = 1024;
 		} 
 		window.webkitStorageInfo.requestQuota(PERSISTENT, megabytes * 1024 * 1024, function(grantedBytes) {
-			filer.init({persistent: true, size: grantedBytes}, function(fs) { 
+			me.filer.init({persistent: true, size: grantedBytes}, function(fs) { 
 				//success
-				filer.mkdir('/storage', true, function(){ 
+				me.filer.mkdir('/storage', true, function(){ 
 					console.log('directory "storage" was created');
 					if (typeof(callback) == 'function') {
 						callback(grantedBytes);
@@ -47,7 +49,7 @@ var FileSystem = function () {
 				set_timeout();
 			}
 		}
-		filer.ls('/storage', function(entries) {
+		this.filer.ls('/storage', function(entries) {
 			//This fails if we somehow managed to write a directory as a file.
 			for (var x = 0; f = entries[x]; ++x) {
 				if (!f.isDirectory) {
@@ -89,10 +91,10 @@ var FileSystem = function () {
 		if (file_count > 0) {
 			set_timeout();
 		}
-		filer.cd('/storage', function(){
+		me.filer.cd('/storage', function(){
 			for (var i = 0, file; file = files[i]; ++i) {
 				if (_.indexOf(ACCEPTED_FILETYPES, file.type) > -1) {
-					filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
+					me.filer.write(file.name, {data: file, type: file.type}, function(fileEntry, fileWriter) {
 						//success
 						final_file_entries.push(fileEntry);
 						files_processed++;
@@ -114,7 +116,7 @@ var FileSystem = function () {
 	this.delete_media_storage = function () {
 		var me = this;
 
-		filer.rm('/storage', function(){
+		me.filer.rm('/storage', function(){
 			console.log('successfully deleted storage folder');
 		}, me.on_error);
 	};

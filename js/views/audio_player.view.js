@@ -1,4 +1,4 @@
-var AudioplayerView = Backbone.View.extend({
+var AudioPlayerView = Backbone.View.extend({
 	tagName: 'div',
 	className: 'navbar navbar-fixed-top audioplayer',
 	//TODO: Implement events to list the contents in the list view.
