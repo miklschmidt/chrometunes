@@ -45,6 +45,23 @@ function show_notification (text, title) {
 	}
 }
 
+//A little hack to make fetch's throw a 'fetched' event by triggering it in the success callback.
+Backbone.Model.prototype.org_fetch = Backbone.Model.prototype.fetch;
+_.extend(Backbone.Model.prototype, {
+	fetch: function(options) {
+		var me = this, new_options = {};
+		_.extend(new_options, options, {
+			success: function () {
+				if (typeof(options.success) == 'function') {
+					options.success();
+				}
+				me.trigger('fetched');
+			}
+		});
+		return this.org_fetch(new_options);
+	}
+});
+
 var player_view;
 var player = null;
 var main_router = null;
@@ -62,7 +79,7 @@ var MediaCenterRouter = Backbone.Router.extend({
 	index: function() {
 		console.log('Running index!')
 		//Instantiate the audioplayer model
-		player = new AudioPlayer();
+		player = new AudioPlayer({id: 1});
 		//Fetch model state from indexeddb
 		var log = function(model, response) {
 			console.log(model);
@@ -74,8 +91,31 @@ var MediaCenterRouter = Backbone.Router.extend({
 		player_view.render();
 		$('body').prepend(player_view.el);
 		console.log('view prepended');
-		//
-		
+		//Change song of audio player.
+		/*fs.get_all_songs(function (files) {
+			var song = files[0];
+			song.save({}, {
+				success: function() {
+					player.change_song(song);
+					console.log(player.toJSON());
+					player.save({}, {
+						succes: function() {
+							console.log('succesful!');
+						},
+						error: function(o, error) {
+							console.log('failed!');
+							console.log(o, error);
+						}
+					});
+				}
+			});
+		});*/
+		player.bind('restored', function() {
+			setInterval(function() {
+			  player.save();
+			}, 1000);
+		});
+		// Push audioplayer state each second, so we can resume playing if we accidentally closed the browser.
 	},
 });
 

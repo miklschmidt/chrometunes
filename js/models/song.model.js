@@ -4,8 +4,8 @@ var SongDB = {
     migrations:[
         {
             version: 1,
-            migrate: function (transaction, next) {
-                var store = transaction.db.createObjectStore("songs");
+            migrate: function (db, versionRequest, next) {
+                var store = db.createObjectStore("songs");
                 store.createIndex("artist_idx", "artist", {
                     unique:false
                 });
@@ -17,6 +17,16 @@ var SongDB = {
                 });
                 next();
             }
+        },
+        {
+	        version: 1,
+	        migrate: function(db, versionRequest, next) {
+	        	var store = versionRequest.transaction.objectStore("songs");
+	        	store.createIndex("url_idx", "file_url", {
+                    unique:true
+                });
+                next();
+	        }
         }
     ]
 };

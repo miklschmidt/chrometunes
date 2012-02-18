@@ -12,17 +12,17 @@ var AudioPlayerView = Backbone.View.extend({
 
 	initialize: function() {
 		var me = this;
-		this.model.bind('change', function() {
+		this.model.bind('change:is_playing change:shuffle change:repeat', function() {
 			this.update_buttons();
 		}, this);
 		this.model.bind('change:current_song', this.update_song_title, this);
 		this.model.bind('destroy', function() {
 			this.remove();
 		}, this);
-		var audio = $(this.model.get('element'));
+		var audio = $(this.model.audio);
 		audio.bind('ended', function(){
 			me.model.next();
-			var song = this.model.get('current_song');
+			var song = this.model.current_song;
 			console.log('playback of current song ended, moving on to "' + song.get('artist') + ' - ' + song.get('title') + '"');
 		});
 		audio.bind('timeupdate', function() {
@@ -79,7 +79,7 @@ var AudioPlayerView = Backbone.View.extend({
 	},
 
 	seek: function (e) {
-		var audio = this.model.get('element');
+		var audio = this.model.audio;
 		if (audio.readyState > 3) {
 			var bg = this.$('#progress_background');
 			var offset = bg.offset();
@@ -91,9 +91,9 @@ var AudioPlayerView = Backbone.View.extend({
 
 	update_time: function () {
 		var player = this.model;
-		var song = player.get('current_song');
-		var playlist = player.get('current_playlist');
-		var audio = player.get('element');
+		var song = player.current_song;
+		var playlist = player.current_playlist;
+		var audio = player.audio;
 		if (song) {
 			var time = audio.currentTime; //time in seconds
 			var duration = audio.duration; //duration in seconds
@@ -108,7 +108,7 @@ var AudioPlayerView = Backbone.View.extend({
 	},
 
 	update_song_title: function () {
-		var song = this.model.get('current_song');
+		var song = this.model.current_song;
 		var text = 'Click a song to start playing';
 		if (song) {
 			text = song.get('artist') + ' - ' + song.get('title');
