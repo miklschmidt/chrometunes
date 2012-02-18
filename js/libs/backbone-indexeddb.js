@@ -37,23 +37,32 @@
         
         this.dbRequest.onsuccess = function (e) {
             this.db = e.target.result; // Attach the connection ot the queue. 
-            
-            if (this.db.version === _.last(this.schema.migrations).version) {
+            console.log('versions--------------------------');
+            console.log(this.db.version);
+            console.log(_.last(this.schema.migrations).version);
+            console.log('--------------------------');
+            if (this.db.version == _.last(this.schema.migrations).version) {
                 // No migration to perform!
+                console.log('allready migrated, we are ready!');
                 this.ready();
             } else if (this.db.version < _.last(this.schema.migrations).version) {
                 // We need to migrate up to the current migration defined in the database
+                console.log('need to migrate');
                 this.migrate(this.schema.migrations, this.db.version, {
                     success: function () {
+                        console.log('migration done, ready!');
                         this.ready();
                     }.bind(this),
                     error: function () {
+                        console.log('migration failed :(');
                         this.error = "Database not up to date. " + this.db.version + " expected was " + _.last(this.schema.migrations).version;
+                        console.log(this.error);
                     }.bind(this)
                 });
             } else {
                 // Looks like the IndexedDB is at a higher version than the current driver schema.
                 this.error = "Database version is greater than current code " + this.db.version + " expected was " + _.last(this.schema.migrations).version;
+                console.log(this.error);
             }
         }.bind(this);
 
